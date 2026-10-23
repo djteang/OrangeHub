@@ -1,0 +1,14 @@
+node_modules/
+dist/
+src-tauri/target/
+product-page/node_modules/
+product-page/dist/
+
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.local
+
+# Local patch scratch file; source changes are already applied to project files.
+patch1.txt
