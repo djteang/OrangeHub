@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import packageInfo from "../package.json";
 import {
   Activity,
   AlertCircle,
@@ -80,6 +81,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 import { check as checkForNativeUpdate } from "@tauri-apps/plugin-updater";
@@ -219,6 +221,8 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { SearchAddon } from "@xterm/addon-search";
 import "@xterm/xterm/css/xterm.css";
+
+const appVersion = packageInfo.version;
 
 type Page = "overview" | "connections" | "snippets" | "history" | "aiHistory" | "settings";
 type Theme = "light" | "dark";
@@ -2093,7 +2097,7 @@ export default function App() {
               </form>
               <div className="gate-foot"><ShieldCheck size={14} />本地 AES-256-GCM 加密</div>
             </div>
-            <div className="gate-version">ORANGEHUB DESKTOP · 0.1.1</div>
+            <div className="gate-version">ORANGEHUB DESKTOP · {appVersion}</div>
           </div>
         </div>
       </div>
@@ -2974,7 +2978,7 @@ function OnboardingDialog({
           {step < 3 ? <button type="button" className="primary-button" disabled={!canAdvance || dataDirectoryBusy || (step === 2 && dataDirectoryEditable && !dataDirectory)} onClick={onNext}>继续 <ChevronRight size={14} /></button> : <button type="button" className="primary-button" disabled={dataDirectoryBusy} onClick={onFinish}>{dataDirectoryBusy ? "正在保存…" : "开始使用"} <Check size={14} /></button>}
         </div>
       </div>
-      <span className="onboarding-version">ORANGEHUB DESKTOP · 0.1.1</span>
+      <span className="onboarding-version">ORANGEHUB DESKTOP · {appVersion}</span>
     </div>
   );
 }

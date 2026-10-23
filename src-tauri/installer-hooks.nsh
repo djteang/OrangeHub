@@ -22,8 +22,10 @@ LangString OrangeHubFinishTitle ${LANG_SIMPCHINESE} "OrangeHub 已安装"
 LangString OrangeHubFinishTitle ${LANG_ENGLISH} "OrangeHub is installed"
 LangString OrangeHubFinishText ${LANG_SIMPCHINESE} "OrangeHub 已准备就绪。点击完成启动应用，开始管理你的远程连接和数据工作区。"
 LangString OrangeHubFinishText ${LANG_ENGLISH} "OrangeHub is ready. Click Finish to start the app and manage your remote connections and data workspaces."
-LangString OrangeHubDataDirectoryLabel ${LANG_SIMPCHINESE} "选择 OrangeHub 本地数据目录。连接配置、加密凭据和会话历史将保存到这里："
-LangString OrangeHubDataDirectoryLabel ${LANG_ENGLISH} "Choose the local OrangeHub data directory. Connection profiles, encrypted credentials, and session history will be stored here:"
+LangString OrangeHubDataDirectoryTitle ${LANG_SIMPCHINESE} "选择本地数据目录"
+LangString OrangeHubDataDirectoryTitle ${LANG_ENGLISH} "Choose a local data directory"
+LangString OrangeHubDataDirectoryDescription ${LANG_SIMPCHINESE} "连接配置、加密凭据和会话历史将保存在这里。OrangeHub 只会在本机使用这些数据。"
+LangString OrangeHubDataDirectoryDescription ${LANG_ENGLISH} "Connection profiles, encrypted credentials, and session history will be stored here. OrangeHub keeps this data on this computer."
 LangString OrangeHubDataDirectoryHint ${LANG_SIMPCHINESE} "请使用只有当前用户可以访问的目录，并确保该目录有足够的磁盘空间。"
 LangString OrangeHubDataDirectoryHint ${LANG_ENGLISH} "Use a directory that only the intended users can access and make sure it has enough free space."
 LangString OrangeHubBrowse ${LANG_SIMPCHINESE} "浏览..."
@@ -49,19 +51,24 @@ Function OrangeHubDataDirectoryCreate
   ${If} $0 == error
     Abort
   ${EndIf}
-  ${NSD_CreateLabel} 0 0 100% 28u "$(OrangeHubDataDirectoryLabel)"
+  ; Keep the page itself dark so static labels do not inherit a light Windows
+  ; background. Labels use transparent backgrounds to match the app workspace.
+  SetCtlColors $0 "" "${OrangeHubInstallerBackground}"
+  ${NSD_CreateLabel} 0 0 100% 18u "$(OrangeHubDataDirectoryTitle)"
   Pop $0
-  SetCtlColors $0 "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
-  ${NSD_CreateDirRequest} 0 35u 78% 13u "$OrangeHubDataDirectory"
+  SetCtlColors $0 "${OrangeHubInstallerText}" "transparent"
+  ${NSD_CreateLabel} 0 22u 100% 28u "$(OrangeHubDataDirectoryDescription)"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateDirRequest} 0 58u 78% 13u "$OrangeHubDataDirectory"
   Pop $OrangeHubDataDirectoryControl
   SetCtlColors $OrangeHubDataDirectoryControl "${OrangeHubInstallerText}" "${OrangeHubInstallerSurface}"
-  ${NSD_CreateButton} 81% 35u 19% 13u "$(OrangeHubBrowse)"
+  ${NSD_CreateButton} 81% 58u 19% 13u "$(OrangeHubBrowse)"
   Pop $OrangeHubBrowseControl
-  SetCtlColors $OrangeHubBrowseControl "${OrangeHubInstallerText}" "${OrangeHubInstallerSurface}"
   ${NSD_OnClick} $OrangeHubBrowseControl OrangeHubDataDirectoryBrowse
-  ${NSD_CreateLabel} 0 56u 100% 30u "$(OrangeHubDataDirectoryHint)"
+  ${NSD_CreateLabel} 0 80u 100% 28u "$(OrangeHubDataDirectoryHint)"
   Pop $0
-  SetCtlColors $0 "${OrangeHubInstallerMuted}" "${OrangeHubInstallerBackground}"
+  SetCtlColors $0 "${OrangeHubInstallerMuted}" "transparent"
   nsDialogs::Show
 FunctionEnd
 
