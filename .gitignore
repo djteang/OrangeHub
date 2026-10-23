@@ -2,9 +2,6 @@ node_modules/
 dist/
 src-tauri/target/
 
-# The product page is kept in the local checkout but is maintained outside this repository.
-product-page/
-
 .env
 .env.*
 !.env.example

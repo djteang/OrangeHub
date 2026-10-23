@@ -26,4 +26,4 @@ The matching public key is stored in `src-tauri/tauri.conf.json`. Never commit t
    git push origin v0.1.1
    ```
 
-The workflow checks that the tag and Rust/Tauri versions match, then builds and publishes `OrangeHub-Setup.exe`, the MSI installer, updater signatures, and `latest.json`. In the desktop client, **Check for updates** verifies the manifest signature before asking to download and install a newer version.
+The workflow checks that the tag and Rust/Tauri versions match, then builds and publishes `OrangeHub-Setup.exe`, the MSI installer, `OrangeHub-Portable.exe`, updater signatures, and `latest.json`. The portable executable does not run an installer and still requires the Windows WebView2 runtime. In the desktop client, **Check for updates** verifies the manifest signature before asking to download and install a newer version.

@@ -34,10 +34,20 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
+      - name: Prepare portable executable
+        shell: pwsh
+        run: |
+          $source = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\orangehub.exe"
+          $portable = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\OrangeHub-Portable.exe"
+          if (-not (Test-Path $source)) { throw "Portable executable was not produced: $source" }
+          Copy-Item -Path $source -Destination $portable -Force
+
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
         with:
           name: OrangeHub-Windows-installers
-          path: src-tauri/target/release/bundle/**
+          path: |
+            src-tauri/target/release/bundle/**
+            src-tauri/target/release/OrangeHub-Portable.exe
           if-no-files-found: error
           retention-days: 14

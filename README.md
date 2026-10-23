@@ -15,11 +15,11 @@ OrangeHub 是一款面向 Windows 的桌面工作台，用于管理远程服务�
 - 可选 AI 助手，可配置为使用兼容的 API 服务地址和密钥。
 - 通过 GitHub Releases 分发并签名的桌面端更新。
 
-当前发布流程提供 Windows x64 安装包，暂未发布 macOS 和 Linux 安装包。
+当前发布流程提供 Windows x64 安装包和免安装绿色版，暂未发布 macOS 和 Linux 安装包。
 
 ## 下载
 
-前往 [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest) 下载最新的 Windows 安装包。
+前往 [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest) 下载最新的 Windows 安装包或绿色版可执行文件。
 
 ## 开发
 
@@ -40,7 +40,7 @@ npm run tauri build
 
 ## 发布与更新
 
-推送到 `main` 会触发 Windows 安装包构建，产物保存在 Actions 中。推送符合 `v*.*.*` 格式且与 `package.json`、`src-tauri/Cargo.toml` 和 `src-tauri/tauri.conf.json` 中版本一致的标签后，会触发正式发布工作流：构建 NSIS 和 MSI 安装包、签名更新文件，并将 `latest.json` 发布到对应的 GitHub Release。Windows NSIS 安装器使用 OrangeHub 品牌界面，并可分别选择程序和本地数据目录。签名配置和发布步骤请参阅 [`UPDATES.md`](UPDATES.md)。
+推送到 `main` 会触发 Windows 安装包和绿色版可执行文件构建，产物保存在 Actions 中。推送符合 `v*.*.*` 格式且与 `package.json`、`src-tauri/Cargo.toml` 和 `src-tauri/tauri.conf.json` 中版本一致的标签后，会触发正式发布工作流：构建 NSIS 和 MSI 安装包、`OrangeHub-Portable.exe` 绿色版、签名更新文件，并将 `latest.json` 发布到对应的 GitHub Release。Windows NSIS 安装器使用 OrangeHub 品牌界面，并可分别选择程序和本地数据目录。签名配置和发布步骤请参阅 [`UPDATES.md`](UPDATES.md)。
 
 ## 许可证
 
