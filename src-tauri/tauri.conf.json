@@ -49,6 +49,7 @@
     ],
     "windows": {
       "nsis": {
+        "template": "installer-template.nsi",
         "installMode": "perMachine",
         "languages": ["SimpChinese", "English"],
         "installerIcon": "icons/icon.ico",

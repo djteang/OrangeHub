@@ -8,6 +8,7 @@
 !define OrangeHubInstallerSurface "18211E"
 !define OrangeHubInstallerText "DCE6E2"
 !define OrangeHubInstallerMuted "87938D"
+!define OrangeHubInstallerAccent "F49A5B"
 !undef MUI_BGCOLOR
 !define MUI_BGCOLOR "${OrangeHubInstallerBackground}"
 !undef MUI_TEXTCOLOR
@@ -28,10 +29,18 @@ LangString OrangeHubDataDirectoryDescription ${LANG_SIMPCHINESE} "连接配置�
 LangString OrangeHubDataDirectoryDescription ${LANG_ENGLISH} "Connection profiles, encrypted credentials, and session history will be stored here. OrangeHub keeps this data on this computer."
 LangString OrangeHubDataDirectoryHint ${LANG_SIMPCHINESE} "请使用只有当前用户可以访问的目录，并确保该目录有足够的磁盘空间。"
 LangString OrangeHubDataDirectoryHint ${LANG_ENGLISH} "Use a directory that only the intended users can access and make sure it has enough free space."
+LangString OrangeHubInstallDirectoryTitle ${LANG_SIMPCHINESE} "安装位置"
+LangString OrangeHubInstallDirectoryTitle ${LANG_ENGLISH} "Install location"
+LangString OrangeHubInstallDirectoryHint ${LANG_SIMPCHINESE} "OrangeHub 程序文件将安装到此文件夹。"
+LangString OrangeHubInstallDirectoryHint ${LANG_ENGLISH} "OrangeHub program files will be installed in this folder."
+LangString OrangeHubSetupSubtitle ${LANG_SIMPCHINESE} "选择安装位置和本地数据目录"
+LangString OrangeHubSetupSubtitle ${LANG_ENGLISH} "Choose install and local data locations"
 LangString OrangeHubBrowse ${LANG_SIMPCHINESE} "浏览..."
 LangString OrangeHubBrowse ${LANG_ENGLISH} "Browse..."
 LangString OrangeHubDataDirectoryRequired ${LANG_SIMPCHINESE} "请选择 OrangeHub 本地数据目录。"
 LangString OrangeHubDataDirectoryRequired ${LANG_ENGLISH} "Please choose a local OrangeHub data directory."
+LangString OrangeHubInstallDirectoryRequired ${LANG_SIMPCHINESE} "请选择 OrangeHub 安装位置。"
+LangString OrangeHubInstallDirectoryRequired ${LANG_ENGLISH} "Please choose an OrangeHub install location."
 
 !define MUI_WELCOMEPAGE_TITLE "$(OrangeHubWelcomeTitle)"
 !define MUI_WELCOMEPAGE_TEXT "$(OrangeHubWelcomeText)"
@@ -41,10 +50,24 @@ LangString OrangeHubDataDirectoryRequired ${LANG_ENGLISH} "Please choose a local
 Var OrangeHubDataDirectory
 Var OrangeHubDataDirectoryControl
 Var OrangeHubBrowseControl
+Var OrangeHubInstallDirectory
+Var OrangeHubInstallDirectoryControl
+Var OrangeHubInstallBrowseControl
 
 Function OrangeHubDataDirectoryCreate
+  !insertmacro MUI_HEADER_TEXT "$(OrangeHubWelcomeTitle)" "$(OrangeHubSetupSubtitle)"
+  ${If} $OrangeHubInstallDirectory == ""
+    StrCpy $OrangeHubInstallDirectory "$INSTDIR"
+  ${EndIf}
   ${If} $OrangeHubDataDirectory == ""
-    StrCpy $OrangeHubDataDirectory "$LOCALAPPDATA\OrangeHub\Data"
+    IfFileExists "$INSTDIR\orangehub-install-data-directory.txt" 0 orangehub_data_directory_default
+    FileOpen $0 "$INSTDIR\orangehub-install-data-directory.txt" r
+    FileRead $0 $OrangeHubDataDirectory
+    FileClose $0
+    orangehub_data_directory_default:
+    ${If} $OrangeHubDataDirectory == ""
+      StrCpy $OrangeHubDataDirectory "$LOCALAPPDATA\OrangeHub\Data"
+    ${EndIf}
   ${EndIf}
   nsDialogs::Create 1018
   Pop $0
@@ -54,22 +77,45 @@ Function OrangeHubDataDirectoryCreate
   ; Keep the page itself dark so static labels do not inherit a light Windows
   ; background. Labels use transparent backgrounds to match the app workspace.
   SetCtlColors $0 "" "${OrangeHubInstallerBackground}"
-  ${NSD_CreateLabel} 0 0 100% 18u "$(OrangeHubDataDirectoryTitle)"
+  ${NSD_CreateLabel} 0 0 100% 18u "$(OrangeHubInstallDirectoryTitle)"
   Pop $0
-  SetCtlColors $0 "${OrangeHubInstallerText}" "transparent"
-  ${NSD_CreateLabel} 0 22u 100% 28u "$(OrangeHubDataDirectoryDescription)"
+  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
+  ${NSD_CreateLabel} 0 20u 100% 18u "$(OrangeHubInstallDirectoryHint)"
   Pop $0
   SetCtlColors $0 "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateDirRequest} 0 58u 78% 13u "$OrangeHubDataDirectory"
+  ${NSD_CreateDirRequest} 0 42u 78% 13u "$OrangeHubInstallDirectory"
+  Pop $OrangeHubInstallDirectoryControl
+  SetCtlColors $OrangeHubInstallDirectoryControl "${OrangeHubInstallerText}" "${OrangeHubInstallerSurface}"
+  ${NSD_CreateButton} 81% 42u 19% 13u "$(OrangeHubBrowse)"
+  Pop $OrangeHubInstallBrowseControl
+  SetCtlColors $OrangeHubInstallBrowseControl "${OrangeHubInstallerText}" "${OrangeHubInstallerSurface}"
+  ${NSD_OnClick} $OrangeHubInstallBrowseControl OrangeHubInstallDirectoryBrowse
+  ${NSD_CreateLabel} 0 65u 100% 18u "$(OrangeHubDataDirectoryTitle)"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerText}" "transparent"
+  ${NSD_CreateLabel} 0 85u 100% 28u "$(OrangeHubDataDirectoryDescription)"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateDirRequest} 0 117u 78% 13u "$OrangeHubDataDirectory"
   Pop $OrangeHubDataDirectoryControl
   SetCtlColors $OrangeHubDataDirectoryControl "${OrangeHubInstallerText}" "${OrangeHubInstallerSurface}"
-  ${NSD_CreateButton} 81% 58u 19% 13u "$(OrangeHubBrowse)"
+  ${NSD_CreateButton} 81% 117u 19% 13u "$(OrangeHubBrowse)"
   Pop $OrangeHubBrowseControl
+  SetCtlColors $OrangeHubBrowseControl "${OrangeHubInstallerText}" "${OrangeHubInstallerSurface}"
   ${NSD_OnClick} $OrangeHubBrowseControl OrangeHubDataDirectoryBrowse
-  ${NSD_CreateLabel} 0 80u 100% 28u "$(OrangeHubDataDirectoryHint)"
+  ${NSD_CreateLabel} 0 138u 100% 28u "$(OrangeHubDataDirectoryHint)"
   Pop $0
   SetCtlColors $0 "${OrangeHubInstallerMuted}" "transparent"
   nsDialogs::Show
+FunctionEnd
+
+Function OrangeHubInstallDirectoryBrowse
+  nsDialogs::SelectFolderDialog $HWNDPARENT "$OrangeHubInstallDirectory"
+  Pop $0
+  ${If} $0 != error
+    StrCpy $OrangeHubInstallDirectory $0
+    ${NSD_SetText} $OrangeHubInstallDirectoryControl $OrangeHubInstallDirectory
+  ${EndIf}
 FunctionEnd
 
 Function OrangeHubDataDirectoryBrowse
@@ -82,6 +128,12 @@ Function OrangeHubDataDirectoryBrowse
 FunctionEnd
 
 Function OrangeHubDataDirectoryLeave
+  ${NSD_GetText} $OrangeHubInstallDirectoryControl $OrangeHubInstallDirectory
+  StrCpy $INSTDIR $OrangeHubInstallDirectory
+  ${If} $INSTDIR == ""
+    MessageBox MB_ICONSTOP "$(OrangeHubInstallDirectoryRequired)"
+    Abort
+  ${EndIf}
   ${NSD_GetText} $OrangeHubDataDirectoryControl $0
   StrCpy $OrangeHubDataDirectory $0
   ${If} $OrangeHubDataDirectory == ""
@@ -92,8 +144,6 @@ FunctionEnd
 
 ; The data directory is selected during installation and written beside the app.
 ; The first-run onboarding reads this value and uses it before creating the vault.
-Page custom OrangeHubDataDirectoryCreate OrangeHubDataDirectoryLeave
-
 !macro NSIS_HOOK_POSTINSTALL
   CreateDirectory "$INSTDIR"
   FileOpen $0 "$INSTDIR\orangehub-install-data-directory.txt" w
