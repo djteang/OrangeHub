@@ -1,44 +1,46 @@
 # OrangeHub
 
+[简体中文](README.md) | [English](README.en.md)
+
 ![Release](https://github.com/djteang/OrangeHub/actions/workflows/release.yml/badge.svg)
 
-OrangeHub is a Windows desktop workspace for remote servers, databases, and Docker. It brings terminal access, file transfer, database tools, and container management into one local-first application.
+OrangeHub 是一款面向 Windows 的桌面工作台，用于管理远程服务器、数据库和 Docker。它将终端访问、文件传输、数据库操作和容器管理整合在一个以本地使用为主的应用中。
 
-## Features
+## 功能
 
-- SSH terminal sessions and SFTP, FTP, and FTPS file transfer.
-- SQL connections for MySQL, MariaDB, TiDB, OceanBase, Apache Doris, StarRocks, ClickHouse, Microsoft SQL Server, Oracle, PostgreSQL, CockroachDB, Neon, and SQLite.
-- Redis and MongoDB workspaces, plus Docker container, image, network, and volume management.
-- A local encrypted credential vault, saved SQL snippets, and session activity history.
-- Optional AI assistance configured with your own compatible API endpoint and key.
-- Signed desktop updates delivered through GitHub Releases.
+- SSH 终端，以及 SFTP、FTP 和 FTPS 文件传输。
+- 支持 MySQL、MariaDB、TiDB、OceanBase、Apache Doris、StarRocks、ClickHouse、Microsoft SQL Server、Oracle、PostgreSQL、CockroachDB、Neon 和 SQLite 数据库连接。
+- Redis 和 MongoDB 工作区，以及 Docker 容器、镜像、网络和卷管理。
+- 本地加密凭据库、SQL 收藏和会话活动历史。
+- 可选 AI 助手，可配置为使用兼容的 API 服务地址和密钥。
+- 通过 GitHub Releases 分发并签名的桌面端更新。
 
-The current release workflow packages Windows x64 installers. macOS and Linux packages are not published yet.
+当前发布流程提供 Windows x64 安装包，暂未发布 macOS 和 Linux 安装包。
 
-## Download
+## 下载
 
-Download the latest Windows installer from [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest). The product page source is in [`product-page/`](product-page/).
+前往 [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest) 下载最新的 Windows 安装包。产品页源代码位于 [`product-page/`](product-page/) 目录。
 
-## Development
+## 开发
 
-Requirements: Windows 10 or 11, Node.js 22.12 or newer, Rust 1.94 or newer, and the Tauri Windows build prerequisites, including WebView2 and Microsoft C++ build tools.
+开发环境要求：Windows 10 或 11、Node.js 22.12 或更高版本、Rust 1.94 或更高版本，以及 Tauri 所需的 Windows 构建环境（包括 WebView2 和 Microsoft C++ 构建工具）。
 
 ```powershell
 npm ci
 npm run tauri dev
 ```
 
-Build the Windows installers locally:
+在本机打包 Windows 安装程序：
 
 ```powershell
 npm run tauri build
 ```
 
-The application frontend can also be run independently with `npm run dev`. The Rust backend and Tauri configuration are in `src-tauri/`.
+也可以通过 `npm run dev` 单独运行应用前端。Rust 后端和 Tauri 配置位于 `src-tauri/`。
 
-## Product page
+## 产品页
 
-The separate Vue and Vite product page lives in `product-page/`:
+独立的 Vue 和 Vite 产品页位于 `product-page/`：
 
 ```powershell
 cd product-page
@@ -46,12 +48,12 @@ npm ci
 npm run dev
 ```
 
-Copy `.env.example` to `.env` to override the GitHub repository, installer URL, or author email. Build it with `npm run build`.
+复制 `.env.example` 为 `.env`，可覆盖 GitHub 仓库地址、安装包下载地址或作者邮箱。使用 `npm run build` 构建产品页。
 
-## Releases and updates
+## 发布与更新
 
-Pushing a `v*.*.*` tag that matches the versions in `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` starts the Windows release workflow. It builds the NSIS and MSI installers, signs updater artifacts, and publishes `latest.json` to the GitHub Release. See [`UPDATES.md`](UPDATES.md) for signing setup and release steps.
+推送符合 `v*.*.*` 格式且与 `package.json`、`src-tauri/Cargo.toml` 和 `src-tauri/tauri.conf.json` 中版本一致的标签后，会触发 Windows 发布工作流。工作流会构建 NSIS 和 MSI 安装包、签名更新文件，并将 `latest.json` 发布到对应的 GitHub Release。签名配置和发布步骤请参阅 [`UPDATES.md`](UPDATES.md)。
 
-## License
+## 许可证
 
-OrangeHub is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](LICENSE.txt) (CC BY-NC-SA 4.0).
+OrangeHub 采用 [知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议](LICENSE.txt)（CC BY-NC-SA 4.0）。
