@@ -4,7 +4,7 @@ OrangeHub uses the Tauri updater plugin. GitHub Releases host the Windows instal
 
 ## GitHub configuration
 
-The public update endpoint and product-page download link target `djteang/OrangeHub`. Keep the repository public so installed clients and the product page can read its Releases.
+The public update endpoint targets `djteang/OrangeHub`. Keep the repository public so installed clients can read its Releases.
 
 The workflow reads these repository Actions secrets:
 
@@ -24,4 +24,4 @@ The matching public key is stored in `src-tauri/tauri.conf.json`. Never commit t
    git push origin v0.1.1
    ```
 
-The workflow checks that the tag and Rust/Tauri versions match, then builds and publishes `OrangeHub-Setup.exe`, the MSI installer, updater signatures, and `latest.json`. The Windows product page links to `OrangeHub-Setup.exe`. In the desktop client, **Check for updates** verifies the manifest signature before asking to download and install a newer version.
+The workflow checks that the tag and Rust/Tauri versions match, then builds and publishes `OrangeHub-Setup.exe`, the MSI installer, updater signatures, and `latest.json`. In the desktop client, **Check for updates** verifies the manifest signature before asking to download and install a newer version.

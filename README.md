@@ -19,7 +19,7 @@ OrangeHub 是一款面向 Windows 的桌面工作台，用于管理远程服务�
 
 ## 下载
 
-前往 [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest) 下载最新的 Windows 安装包。产品页源代码位于 [`product-page/`](product-page/) 目录。
+前往 [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest) 下载最新的 Windows 安装包。
 
 ## 开发
 
@@ -37,18 +37,6 @@ npm run tauri build
 ```
 
 也可以通过 `npm run dev` 单独运行应用前端。Rust 后端和 Tauri 配置位于 `src-tauri/`。
-
-## 产品页
-
-独立的 Vue 和 Vite 产品页位于 `product-page/`：
-
-```powershell
-cd product-page
-npm ci
-npm run dev
-```
-
-复制 `.env.example` 为 `.env`，可覆盖 GitHub 仓库地址、安装包下载地址或作者邮箱。使用 `npm run build` 构建产品页。
 
 ## 发布与更新
 

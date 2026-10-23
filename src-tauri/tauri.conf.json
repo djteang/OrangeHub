@@ -51,6 +51,11 @@
       "nsis": {
         "installMode": "perMachine",
         "languages": ["SimpChinese", "English"],
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "headerImage": "icons/installer-header.bmp",
+        "sidebarImage": "icons/installer-sidebar.bmp",
+        "uninstallerHeaderImage": "icons/installer-header.bmp",
         "installerHooks": "installer-hooks.nsh"
       }
     },

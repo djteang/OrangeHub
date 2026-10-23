@@ -19,7 +19,7 @@ The current release workflow packages Windows x64 installers. macOS and Linux pa
 
 ## Download
 
-Download the latest Windows installer from [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest). The product page source is in [`product-page/`](product-page/).
+Download the latest Windows installer from [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest).
 
 ## Development
 
@@ -37,18 +37,6 @@ npm run tauri build
 ```
 
 The application frontend can also be run independently with `npm run dev`. The Rust backend and Tauri configuration are in `src-tauri/`.
-
-## Product page
-
-The separate Vue and Vite product page lives in `product-page/`:
-
-```powershell
-cd product-page
-npm ci
-npm run dev
-```
-
-Copy `.env.example` to `.env` to override the GitHub repository, installer URL, or author email. Build it with `npm run build`.
 
 ## Releases and updates
 
