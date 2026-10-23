@@ -32,7 +32,9 @@ jobs:
         run: |
           $configVersion = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
           $cargoVersion = [regex]::Match((Get-Content src-tauri/Cargo.toml -Raw), '(?m)^version\s*=\s*"([^"]+)"').Groups[1].Value
+          $packageVersion = (Get-Content package.json -Raw | ConvertFrom-Json).version
           if ($cargoVersion -ne $configVersion) { throw "tauri.conf.json ($configVersion) and Cargo.toml ($cargoVersion) versions differ." }
+          if ($packageVersion -ne $configVersion) { throw "tauri.conf.json ($configVersion) and package.json ($packageVersion) versions differ." }
           if ($env:GITHUB_REF_NAME -ne "v$configVersion") { throw "Tag $env:GITHUB_REF_NAME must match app version v$configVersion." }
 
       - name: Build and publish signed installers

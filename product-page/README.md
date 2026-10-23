@@ -1,17 +1,32 @@
-# OrangeHub 产品页
+# OrangeHub Product Page
 
-这是一个独立的 Vue 3 + Vite 项目，与根目录的 React/Tauri 桌面客户端分开安装和构建。
+The project website is a standalone Vue 3 and Vite app. It can be developed and deployed independently from the React and Tauri desktop client in the repository root.
+
+## Local development
+
+Requirements: Node.js 22.12 or newer.
 
 ```powershell
-cd product-page
-npm install
+npm ci
 npm run dev
 ```
 
-生产构建输出到 `product-page/dist/`：
+Create a production build with:
 
 ```powershell
 npm run build
 ```
 
-复制 `.env.example` 为 `.env` 后，可以配置 GitHub 仓库、Windows 安装包直链和作者邮箱。根目录的 GitHub Actions 会在推送 `v*.*.*` 标签时构建并发布 `OrangeHub-Setup.exe`。客户端更新使用同一个 GitHub Release 的 `latest.json`，安装包和更新清单都必须由 Tauri 签名。
+Vite writes the static site to `dist/`. Deploy the contents of that directory to a static web host.
+
+## Configuration
+
+Copy `.env.example` to `.env` to set any of the following values:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `VITE_GITHUB_REPO` | `djteang/OrangeHub` | GitHub repository used for source and release links. |
+| `VITE_WINDOWS_DOWNLOAD_URL` | Latest Release's `OrangeHub-Setup.exe` | Optional direct Windows installer URL. |
+| `VITE_AUTHOR_EMAIL` | `hello@czdgg.top` | Contact address for the site. |
+
+The Windows download link expects the Release workflow to publish an asset named `OrangeHub-Setup.exe`. Release signing and client auto-update configuration are maintained in the repository root; see [`../UPDATES.md`](../UPDATES.md).
