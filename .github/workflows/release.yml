@@ -69,4 +69,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $legacyAsset = gh release view $env:GITHUB_REF_NAME --json assets --jq '.assets[] | select(.name == "OrangeHub-Portable.exe") | .name' --repo $env:GITHUB_REPOSITORY
+          if ($legacyAsset) {
+            gh release delete-asset $env:GITHUB_REF_NAME "OrangeHub-Portable.exe" --yes --repo $env:GITHUB_REPOSITORY
+          }
           gh release upload $env:GITHUB_REF_NAME "$env:GITHUB_WORKSPACE\OrangeHub-Portable.zip" --clobber --repo $env:GITHUB_REPOSITORY
