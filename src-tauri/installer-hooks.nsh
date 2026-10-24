@@ -124,7 +124,7 @@ Function OrangeHubDataDirectoryCreate
   ; Create the lower settings surface before its child controls. Windows paints
   ; later-created child windows on top of earlier ones, so this must be the
   ; first control in the content area.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 150u 100% 74u ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 0 150u 100% 74u ""
   Pop $OrangeHubInstallSurface
   SetCtlColors $OrangeHubInstallSurface "" "${OrangeHubInstallerSurface}"
 
@@ -137,12 +137,12 @@ Function OrangeHubDataDirectoryCreate
   ${NSD_OnClick} $OrangeHubTopBarControl OrangeHubDragWindow
 
   CreateFont $OrangeHubButtonFont "Microsoft YaHei UI" 11 700
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 82% 3u 7% 18u "-"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 82% 3u 7% 18u "-"
   Pop $OrangeHubMinimizeButton
   SendMessage $OrangeHubMinimizeButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   ${NSD_OnClick} $OrangeHubMinimizeButton OrangeHubMinimize
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 90% 3u 7% 18u "x"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 90% 3u 7% 18u "x"
   Pop $OrangeHubCloseButton
   SendMessage $OrangeHubCloseButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
@@ -150,7 +150,7 @@ Function OrangeHubDataDirectoryCreate
 
   ; Extract the icon embedded in this installer so the brand mark is available
   ; at runtime even though the source .ico file is not shipped beside it.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 35% 22u 30% 54u ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 35% 22u 30% 54u ""
   Pop $OrangeHubLogoControl
   CreateFont $OrangeHubTopBarFont "Microsoft YaHei UI" 30 700
   ${NSD_CreateLabel} 35% 22u 30% 54u "O"
@@ -167,10 +167,10 @@ Function OrangeHubDataDirectoryCreate
 
   ; Paint the primary action as a black surface plus a text layer. This avoids
   ; theme-specific button rendering that can drop the label or background.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 12% 100u 76% 30u ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 100u 76% 30u ""
   Pop $OrangeHubInstallButtonSurface
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 12% 100u 76% 30u "安装"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 100u 76% 30u "安装"
   Pop $OrangeHubInstallButton
   SendMessage $OrangeHubInstallButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubInstallButton "FFFFFF" "${OrangeHubInstallerAccent}"
@@ -222,7 +222,7 @@ Function OrangeHubDataDirectoryCreate
   SetCtlColors $OrangeHubBrowseControl "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   ${NSD_OnClick} $OrangeHubBrowseControl OrangeHubDataDirectoryBrowse
 
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER} 0 246u 100% 14u "安装完成后可在应用设置中更改本地数据目录。"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER} 0 0 246u 100% 14u "安装完成后可在应用设置中更改本地数据目录。"
   Pop $OrangeHubNoteControl
   SetCtlColors $OrangeHubNoteControl "${OrangeHubInstallerMuted}" "transparent"
 
@@ -330,18 +330,18 @@ Function OrangeHubFinishCreate
   ${NSD_OnClick} $OrangeHubTopBarControl OrangeHubDragWindow
 
   CreateFont $OrangeHubButtonFont "Microsoft YaHei UI" 11 700
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 82% 3u 7% 18u "-"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 82% 3u 7% 18u "-"
   Pop $OrangeHubMinimizeButton
   SendMessage $OrangeHubMinimizeButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   ${NSD_OnClick} $OrangeHubMinimizeButton OrangeHubMinimize
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 90% 3u 7% 18u "x"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 90% 3u 7% 18u "x"
   Pop $OrangeHubCloseButton
   SendMessage $OrangeHubCloseButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   ${NSD_OnClick} $OrangeHubCloseButton OrangeHubClose
 
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 35% 22u 30% 54u ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 35% 22u 30% 54u ""
   Pop $OrangeHubLogoControl
   CreateFont $OrangeHubTopBarFont "Microsoft YaHei UI" 30 700
   ${NSD_CreateLabel} 35% 22u 30% 54u "O"
@@ -361,10 +361,10 @@ Function OrangeHubFinishCreate
   ${NSD_CreateLabel} 0 132u 100% 24u "OrangeHub 已准备就绪，点击进入软件。"
   Pop $OrangeHubAgreementPrefixControl
   SetCtlColors $OrangeHubAgreementPrefixControl "${OrangeHubInstallerMuted}" "transparent"
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 12% 170u 76% 30u ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 170u 76% 30u ""
   Pop $OrangeHubInstallButtonSurface
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 12% 170u 76% 30u "进入 OrangeHub"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 170u 76% 30u "进入 OrangeHub"
   Pop $OrangeHubFinishButton
   SendMessage $OrangeHubFinishButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubFinishButton "FFFFFF" "${OrangeHubInstallerAccent}"
