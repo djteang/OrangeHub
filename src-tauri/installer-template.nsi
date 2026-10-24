@@ -167,26 +167,21 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !define MUI_LANGDLL_REGISTRY_KEY "${MANUPRODUCTKEY}"
 !define MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language"
 
-; Installer pages, must be ordered as they appear
-; 1. OrangeHub setup page: install and local data directories
+; Installer pages, kept as one visual workflow. The agreement is shown as
+; clickable links on the custom first page, so no separate license page appears.
 Page custom OrangeHubDataDirectoryCreate OrangeHubDataDirectoryLeave
 
-; 2. License Page (if defined)
-!if "${LICENSE}" != ""
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-  !insertmacro MUI_PAGE_LICENSE "${LICENSE}"
-!endif
+; The MUI install page runs the real sections and supplies the progress engine.
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW OrangeHubInstFilesShow
+!insertmacro MUI_PAGE_INSTFILES
+!undef MUI_PAGE_CUSTOMFUNCTION_SHOW
 
-; 3. Install mode (if it is set to `both`)
-!if "${INSTALLMODE}" == "both"
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-  !insertmacro MULTIUSER_PAGE_INSTALLMODE
-!endif
+; The finish page is a second custom state of the same installer window.
+Page custom OrangeHubFinishCreate OrangeHubFinishLeave
 
-; 4. Custom page to ask user if he wants to reinstall/uninstall
-;    only if a previous installation was detected
+; Legacy maintenance helpers remain available to updater command lines, but the
+; interactive installer no longer inserts separate license, mode, or shortcut pages.
 Var ReinstallPageCheck
-Page custom PageReinstall PageLeaveReinstall
 Function PageReinstall
   ; Uninstall previous WiX installation if exists.
   ;
@@ -385,34 +380,6 @@ Function PageLeaveReinstall
     ${EndIf}
   reinst_done:
 FunctionEnd
-
-; 5. Start menu shortcut page
-Var AppStartMenuFolder
-!if "${STARTMENUFOLDER}" != ""
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-  !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${STARTMENUFOLDER}"
-!else
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE Skip
-!endif
-!insertmacro MUI_PAGE_STARTMENU Application $AppStartMenuFolder
-
-; 7. Installation page
-!insertmacro MUI_PAGE_INSTFILES
-
-; 8. Finish page
-;
-; Don't auto jump to finish page after installation page,
-; because the installation page has useful info that can be used debug any issues with the installer.
-!define MUI_FINISHPAGE_NOAUTOCLOSE
-; Use show readme button in the finish page as a button create a desktop shortcut
-!define MUI_FINISHPAGE_SHOWREADME
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "$(createDesktop)"
-!define MUI_FINISHPAGE_SHOWREADME_FUNCTION CreateOrUpdateDesktopShortcut
-; Show run app after installation.
-!define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_FUNCTION RunMainBinary
-!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-!insertmacro MUI_PAGE_FINISH
 
 Function RunMainBinary
   nsis_tauri_utils::RunAsUser "$INSTDIR\${MAINBINARYNAME}.exe" ""
@@ -722,10 +689,8 @@ Section Install
     WriteRegStr SHCTX "${UNINSTKEY}" "HelpLink" "${HOMEPAGE}"
   !endif
 
-  ; Create start menu shortcut
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-    Call CreateOrUpdateStartMenuShortcut
-  !insertmacro MUI_STARTMENU_WRITE_END
+  ; Create start menu shortcut without inserting a separate selection page.
+  Call CreateOrUpdateStartMenuShortcut
 
   ; Create desktop shortcut for silent and passive installers
   ; because finish page will be skipped
@@ -827,15 +792,7 @@ Section Uninstall
   ${If} $UpdateMode <> 1
     !insertmacro DeleteAppUserModelId
 
-    ; Remove start menu shortcut
-    !insertmacro MUI_STARTMENU_GETFOLDER Application $AppStartMenuFolder
-    !insertmacro IsShortcutTarget "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    Pop $0
-    ${If} $0 = 1
-      !insertmacro UnpinShortcut "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk"
-      Delete "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk"
-      RMDir "$SMPROGRAMS\$AppStartMenuFolder"
-    ${EndIf}
+    ; Remove the root start menu shortcut.
     !insertmacro IsShortcutTarget "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
     Pop $0
     ${If} $0 = 1
@@ -918,24 +875,11 @@ FunctionEnd
 Function CreateOrUpdateStartMenuShortcut
   ; We used to use product name as MAINBINARYNAME
   ; migrate old shortcuts to target the new MAINBINARYNAME
-  StrCpy $R0 0
-
-  !insertmacro IsShortcutTarget "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\$OldMainBinaryName"
-  Pop $0
-  ${If} $0 = 1
-    !insertmacro SetShortcutTarget "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    StrCpy $R0 1
-  ${EndIf}
-
   !insertmacro IsShortcutTarget "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\$OldMainBinaryName"
   Pop $0
   ${If} $0 = 1
     !insertmacro SetShortcutTarget "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
     StrCpy $R0 1
-  ${EndIf}
-
-  ${If} $R0 = 1
-    Return
   ${EndIf}
 
   ; Skip creating shortcut if in update mode or no shortcut mode
@@ -947,14 +891,8 @@ Function CreateOrUpdateStartMenuShortcut
     ${EndIf}
   ${EndIf}
 
-  !if "${STARTMENUFOLDER}" != ""
-    CreateDirectory "$SMPROGRAMS\$AppStartMenuFolder"
-    CreateShortcut "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    !insertmacro SetLnkAppUserModelId "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk"
-  !else
-    CreateShortcut "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    !insertmacro SetLnkAppUserModelId "$SMPROGRAMS\${PRODUCTNAME}.lnk"
-  !endif
+  CreateShortcut "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
+  !insertmacro SetLnkAppUserModelId "$SMPROGRAMS\${PRODUCTNAME}.lnk"
 FunctionEnd
 
 Function CreateOrUpdateDesktopShortcut
