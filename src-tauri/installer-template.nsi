@@ -34,10 +34,6 @@ ManifestDPIAwareness PerMonitorV2
 ${StrCase}
 ${StrLoc}
 
-{{#if installer_hooks}}
-!include "{{installer_hooks}}"
-{{/if}}
-
 !define WEBVIEW2APPGUID "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
 
 !define MANUFACTURER "{{manufacturer}}"
@@ -72,6 +68,10 @@ ${StrLoc}
 !define UNINSTALLERSIGNCOMMAND "{{uninstaller_sign_cmd}}"
 !define ESTIMATEDSIZE "{{estimated_size}}"
 !define STARTMENUFOLDER "{{start_menu_folder}}"
+
+{{#if installer_hooks}}
+!include "{{installer_hooks}}"
+{{/if}}
 
 Var PassiveMode
 Var UpdateMode
