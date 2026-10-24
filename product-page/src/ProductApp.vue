@@ -7,7 +7,7 @@ const githubBase = `https://github.com/${githubRepo}`;
 const releasesUrl = `${githubBase}/releases/latest`;
 
 const windowsDownloadUrl = import.meta.env.VITE_WINDOWS_DOWNLOAD_URL || `${releasesUrl}/download/OrangeHub-Setup.exe`;
-const windowsPortableDownloadUrl = import.meta.env.VITE_WINDOWS_PORTABLE_DOWNLOAD_URL || `${releasesUrl}/download/OrangeHub-Portable.exe`;
+const windowsPortableDownloadUrl = import.meta.env.VITE_WINDOWS_PORTABLE_DOWNLOAD_URL || `${releasesUrl}/download/OrangeHub-Portable.zip`;
 const downloads = [
   { key: "windows-installer", name: "Windows 安装版", detail: "Windows 10 / 11 · x64 · 安装器", icon: "windows", file: windowsDownloadUrl, available: true },
   { key: "windows-portable", name: "Windows 绿色版", detail: "免安装 · 解压即用 · x64", icon: "windows", file: windowsPortableDownloadUrl, available: true },

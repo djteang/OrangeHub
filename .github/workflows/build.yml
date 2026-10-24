@@ -38,9 +38,12 @@ jobs:
         shell: pwsh
         run: |
           $source = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\orangehub.exe"
-          $portable = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\OrangeHub-Portable.exe"
+          $portableDir = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\OrangeHub-Portable"
+          $portableZip = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\OrangeHub-Portable.zip"
           if (-not (Test-Path $source)) { throw "Portable executable was not produced: $source" }
-          Copy-Item -Path $source -Destination $portable -Force
+          New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
+          Copy-Item -Path $source -Destination (Join-Path $portableDir "OrangeHub.exe") -Force
+          Compress-Archive -Path (Join-Path $portableDir "*") -DestinationPath $portableZip -Force
 
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
@@ -48,6 +51,6 @@ jobs:
           name: OrangeHub-Windows-installers
           path: |
             src-tauri/target/release/bundle/**
-            src-tauri/target/release/OrangeHub-Portable.exe
+            src-tauri/target/release/OrangeHub-Portable.zip
           if-no-files-found: error
           retention-days: 14

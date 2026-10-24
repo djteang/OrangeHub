@@ -27,7 +27,7 @@ Copy `.env.example` to `.env` to set any of the following values:
 | --- | --- | --- |
 | `VITE_GITHUB_REPO` | `djteang/OrangeHub` | GitHub repository used for source and release links. |
 | `VITE_WINDOWS_DOWNLOAD_URL` | Latest Release's `OrangeHub-Setup.exe` | Optional direct Windows installer URL. |
-| `VITE_WINDOWS_PORTABLE_DOWNLOAD_URL` | Latest Release's `OrangeHub-Portable.exe` | Optional direct Windows portable executable URL. |
+| `VITE_WINDOWS_PORTABLE_DOWNLOAD_URL` | Latest Release's `OrangeHub-Portable.zip` | Optional direct Windows portable archive URL. |
 | `VITE_AUTHOR_EMAIL` | `hello@czdgg.top` | Contact address for the site. |
 
-The Windows download links expect the Release workflow to publish `OrangeHub-Setup.exe` and `OrangeHub-Portable.exe`. The portable build is a single executable and does not run an installer; it still relies on the Windows WebView2 runtime. Release signing and client auto-update configuration are maintained in the repository root; see [`../UPDATES.md`](../UPDATES.md).
+The Windows download links expect the Release workflow to publish `OrangeHub-Setup.exe` and `OrangeHub-Portable.zip`. The portable build contains the executable in a compressed archive and does not run an installer; it still relies on the Windows WebView2 runtime. Release signing and client auto-update configuration are maintained in the repository root; see [`../UPDATES.md`](../UPDATES.md).

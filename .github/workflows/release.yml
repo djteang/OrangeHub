@@ -57,13 +57,16 @@ jobs:
         shell: pwsh
         run: |
           $source = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\orangehub.exe"
-          $portable = Join-Path $env:GITHUB_WORKSPACE "OrangeHub-Portable.exe"
+          $portableDir = Join-Path $env:GITHUB_WORKSPACE "OrangeHub-Portable"
+          $portableZip = Join-Path $env:GITHUB_WORKSPACE "OrangeHub-Portable.zip"
           if (-not (Test-Path $source)) { throw "Portable executable was not produced: $source" }
-          Copy-Item -Path $source -Destination $portable -Force
+          New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
+          Copy-Item -Path $source -Destination (Join-Path $portableDir "OrangeHub.exe") -Force
+          Compress-Archive -Path (Join-Path $portableDir "*") -DestinationPath $portableZip -Force
 
-      - name: Upload portable executable to release
+      - name: Upload portable archive to release
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload $env:GITHUB_REF_NAME "$env:GITHUB_WORKSPACE\OrangeHub-Portable.exe" --clobber --repo $env:GITHUB_REPOSITORY
+          gh release upload $env:GITHUB_REF_NAME "$env:GITHUB_WORKSPACE\OrangeHub-Portable.zip" --clobber --repo $env:GITHUB_REPOSITORY
