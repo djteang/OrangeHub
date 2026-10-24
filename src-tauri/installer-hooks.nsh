@@ -141,6 +141,35 @@ Function OrangeHubDataDirectoryCreate
   SetCtlColors $OrangeHubDialog "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 760, i 940, i 0x0024)'
 
+  ; Create the lower surface before its child controls so it stays behind the
+  ; completion button and the option labels.
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 0 63% 100% 37% ""
+  Pop $0
+  SetCtlColors $0 "" "${OrangeHubInstallerSurface}"
+  CreateFont $OrangeHubTitleFont "Microsoft YaHei UI" 10 700
+  ${NSD_CreateLabel} 8% 67% 42% 5% "安装选项"
+  Pop $OrangeHubOptionTitle
+  SendMessage $OrangeHubOptionTitle ${WM_SETFONT} $OrangeHubTitleFont 1
+  SetCtlColors $OrangeHubOptionTitle "${OrangeHubInstallerText}" "transparent"
+  ${NSD_CreateLabel} 8% 74% 70% 5% "创建开始菜单快捷方式"
+  Pop $OrangeHubOptionOne
+  SetCtlColors $OrangeHubOptionOne "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateLabel} 8% 81% 70% 5% "创建桌面快捷方式"
+  Pop $OrangeHubOptionTwo
+  SetCtlColors $OrangeHubOptionTwo "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateLabel} 8% 88% 70% 5% "检查并安装 WebView2"
+  Pop $OrangeHubOptionThree
+  SetCtlColors $OrangeHubOptionThree "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateLabel} 88% 74% 6% 5% "✓"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
+  ${NSD_CreateLabel} 88% 81% 6% 5% "✓"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
+  ${NSD_CreateLabel} 88% 88% 6% 5% "✓"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
+
   ; A single lower surface creates the same visual split as the reference UI.
   nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 0 63% 100% 37% ""
   Pop $0
@@ -205,7 +234,7 @@ Function OrangeHubDataDirectoryCreate
   SetCtlColors $OrangeHubHeroSubtitle "${OrangeHubInstallerMuted}" "transparent"
 
   ; Primary action, rounded like the reference installer.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 48% 76% 9% ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 47% 48% 76% 9% ""
   Pop $OrangeHubInstallButtonSurface
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
   Push $OrangeHubInstallButtonSurface
@@ -213,7 +242,7 @@ Function OrangeHubDataDirectoryCreate
   Push 74
   Push 30
   Call OrangeHubApplyRoundRegion
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 48% 76% 9% "$(OrangeHubInstallNow)"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 47% 48% 76% 9% "$(OrangeHubInstallNow)"
   Pop $OrangeHubInstallButton
   SendMessage $OrangeHubInstallButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubInstallButton "FFFFFF" "${OrangeHubInstallerAccent}"
@@ -224,20 +253,20 @@ Function OrangeHubDataDirectoryCreate
   Call OrangeHubApplyRoundRegion
   ${NSD_OnClick} $OrangeHubInstallButton OrangeHubStartInstall
 
-  ${NSD_CreateLabel} 19% 54% 24% 4% "$(OrangeHubAgreementPrefix)"
+  ${NSD_CreateLabel} 19% 58% 24% 4% "$(OrangeHubAgreementPrefix)"
   Pop $OrangeHubAgreementPrefixControl
   SendMessage $OrangeHubAgreementPrefixControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubAgreementPrefixControl "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateLink} 44% 54% 18% 4% "$(OrangeHubUserAgreement)"
+  ${NSD_CreateLink} 44% 58% 18% 4% "$(OrangeHubUserAgreement)"
   Pop $OrangeHubUserAgreementControl
   SendMessage $OrangeHubUserAgreementControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubUserAgreementControl "${OrangeHubInstallerText}" "transparent"
   ${NSD_OnClick} $OrangeHubUserAgreementControl OrangeHubOpenUserAgreement
-  ${NSD_CreateLabel} 63% 54% 5% 4% "和"
+  ${NSD_CreateLabel} 63% 58% 5% 4% "和"
   Pop $OrangeHubAgreementAndControl
   SendMessage $OrangeHubAgreementAndControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubAgreementAndControl "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateLink} 68% 54% 18% 4% "$(OrangeHubPrivacyPolicy)"
+  ${NSD_CreateLink} 68% 58% 18% 4% "$(OrangeHubPrivacyPolicy)"
   Pop $OrangeHubPrivacyPolicyControl
   SendMessage $OrangeHubPrivacyPolicyControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubPrivacyPolicyControl "${OrangeHubInstallerText}" "transparent"
@@ -453,7 +482,7 @@ Function OrangeHubFinishCreate
   SendMessage $OrangeHubHeroSubtitle ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubHeroSubtitle "${OrangeHubInstallerMuted}" "transparent"
 
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 61% 76% 9% ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 53% 61% 76% 9% ""
   Pop $OrangeHubInstallButtonSurface
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
   Push $OrangeHubInstallButtonSurface
@@ -461,7 +490,7 @@ Function OrangeHubFinishCreate
   Push 74
   Push 30
   Call OrangeHubApplyRoundRegion
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 61% 76% 9% "$(OrangeHubOpen)"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 53% 61% 76% 9% "$(OrangeHubOpen)"
   Pop $OrangeHubFinishButton
   SendMessage $OrangeHubFinishButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubFinishButton "FFFFFF" "${OrangeHubInstallerAccent}"
@@ -472,33 +501,6 @@ Function OrangeHubFinishCreate
   Call OrangeHubApplyRoundRegion
   ${NSD_OnClick} $OrangeHubFinishButton OrangeHubFinishLeave
 
-  ; The lower area mirrors the reference option list with clear check marks.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 0 63% 100% 37% ""
-  Pop $0
-  SetCtlColors $0 "" "${OrangeHubInstallerSurface}"
-  CreateFont $OrangeHubTitleFont "Microsoft YaHei UI" 10 700
-  ${NSD_CreateLabel} 8% 67% 42% 5% "安装选项"
-  Pop $OrangeHubOptionTitle
-  SendMessage $OrangeHubOptionTitle ${WM_SETFONT} $OrangeHubTitleFont 1
-  SetCtlColors $OrangeHubOptionTitle "${OrangeHubInstallerText}" "transparent"
-  ${NSD_CreateLabel} 8% 74% 70% 5% "创建开始菜单快捷方式"
-  Pop $OrangeHubOptionOne
-  SetCtlColors $OrangeHubOptionOne "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateLabel} 8% 81% 70% 5% "创建桌面快捷方式"
-  Pop $OrangeHubOptionTwo
-  SetCtlColors $OrangeHubOptionTwo "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateLabel} 8% 88% 70% 5% "检查并安装 WebView2"
-  Pop $OrangeHubOptionThree
-  SetCtlColors $OrangeHubOptionThree "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateLabel} 88% 74% 6% 5% "✓"
-  Pop $0
-  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
-  ${NSD_CreateLabel} 88% 81% 6% 5% "✓"
-  Pop $0
-  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
-  ${NSD_CreateLabel} 88% 88% 6% 5% "✓"
-  Pop $0
-  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
   ${NSD_CreateTimer} OrangeHubDragTimer 25
   nsDialogs::Show
 FunctionEnd
