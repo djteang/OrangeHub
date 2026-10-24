@@ -516,11 +516,11 @@ Function OrangeHubFinishLeave
 FunctionEnd
 
 Function OrangeHubOpenUserAgreement
-  MessageBox MB_OK "$(OrangeHubPolicyUser)"
+  MessageBox MB_OK "OrangeHub 用户协议：请仅在你已阅读并同意使用条款后继续安装。"
 FunctionEnd
 
 Function OrangeHubOpenPrivacyPolicy
-  MessageBox MB_OK "$(OrangeHubPolicyPrivacy)"
+  MessageBox MB_OK "OrangeHub 隐私政策：连接配置和凭据仅保存在你选择的本地数据目录。"
 FunctionEnd
 
 Function OrangeHubInstallDirectoryBrowse
