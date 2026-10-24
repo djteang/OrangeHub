@@ -137,7 +137,7 @@ Function OrangeHubDataDirectoryCreate
     Abort
   ${EndIf}
   SetCtlColors $OrangeHubDialog "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
-  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 797, i 1468, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 797, i 800, i 0x0024)'
 
   ; Create the lower surface before its child controls so it stays behind the
   ; completion button and the option labels.
@@ -219,8 +219,9 @@ Function OrangeHubDataDirectoryCreate
 
   ; The transparent drag surface keeps the full title area interactive. The
   ; timer below starts the move on mouse-down, which works for a borderless NSIS window.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_NOTIFY} 0 0 0 80% 8% ""
+  nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 0 0 80% 8% ""
   Pop $OrangeHubDragSurface
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubDragSurface, w "", w "")'
   SetCtlColors $OrangeHubDragSurface "" "transparent"
   ${NSD_OnClick} $OrangeHubDragSurface OrangeHubDragWindow
 
@@ -234,11 +235,13 @@ Function OrangeHubDataDirectoryCreate
   CreateFont $OrangeHubButtonFont "Microsoft YaHei UI" 11 700
   nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 82% 2% 7% 6% "-"
   Pop $OrangeHubMinimizeButton
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubMinimizeButton, w "", w "")'
   SendMessage $OrangeHubMinimizeButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubMinimizeButton OrangeHubMinimize
   nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 90% 2% 7% 6% "x"
   Pop $OrangeHubCloseButton
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubCloseButton, w "", w "")'
   SendMessage $OrangeHubCloseButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubCloseButton OrangeHubClose
@@ -249,8 +252,8 @@ Function OrangeHubDataDirectoryCreate
   SetCtlColors $OrangeHubLogoSurface "" "${OrangeHubInstallerBackground}"
   Push $OrangeHubLogoSurface
   Push 335
-  Push 367
-  Push 160
+  Push 200
+  Push 100
   Call OrangeHubApplyRoundRegion
   nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 38% 16% 18% 17% ""
   Pop $OrangeHubLogoControl
@@ -283,16 +286,17 @@ Function OrangeHubDataDirectoryCreate
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
   Push $OrangeHubInstallButtonSurface
   Push 542
-  Push 117
+  Push 64
   Push 30
   Call OrangeHubApplyRoundRegion
   nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 16% 50% 68% 8% "安装"
   Pop $OrangeHubInstallButton
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubInstallButton, w "", w "")'
   SendMessage $OrangeHubInstallButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubInstallButton "FFFFFF" "${OrangeHubInstallerAccent}"
   Push $OrangeHubInstallButton
   Push 542
-  Push 117
+  Push 64
   Push 30
   Call OrangeHubApplyRoundRegion
   ${NSD_OnClick} $OrangeHubInstallButton OrangeHubStartInstall
@@ -330,8 +334,8 @@ Function OrangeHubApplyWindowChrome
   System::Call 'user32::GetWindowLong(p $HWNDPARENT, i -16)i.r0'
   IntOp $0 $0 & 0xFF30FFFF
   System::Call 'user32::SetWindowLong(p $HWNDPARENT, p -16, i $0)'
-  System::Call 'user32::SetWindowPos(p $HWNDPARENT, p 0, i 0, i 0, i 797, i 1468, i 0x0026)'
-  System::Call 'gdi32::CreateRoundRectRgn(i 0, i 0, i 797, i 1468, i 28, i 28)i.r0'
+  System::Call 'user32::SetWindowPos(p $HWNDPARENT, p 0, i 0, i 0, i 797, i 800, i 0x0026)'
+  System::Call 'gdi32::CreateRoundRectRgn(i 0, i 0, i 797, i 800, i 28, i 28)i.r0'
   System::Call 'user32::SetWindowRgn(p $HWNDPARENT, p r0, i 1)'
   GetDlgItem $0 $HWNDPARENT 1
   ShowWindow $0 ${SW_HIDE}
@@ -375,6 +379,20 @@ Function OrangeHubDragTimer
   System::Call 'user32::GetCursorPos(p $0)i.r1'
   System::Call '*$0(i.r2, i.r3)'
   System::Free $0
+  ; The whole client area can start a drag, except controls that need clicks.
+  System::Call 'user32::WindowFromPoint(i r2, i r3)i.r8'
+  ${If} $8 == $OrangeHubMinimizeButton
+  ${OrIf} $8 == $OrangeHubCloseButton
+  ${OrIf} $8 == $OrangeHubInstallButton
+  ${OrIf} $8 == $OrangeHubFinishButton
+  ${OrIf} $8 == $OrangeHubInstallBrowseControl
+  ${OrIf} $8 == $OrangeHubInstallSettingsControl
+  ${OrIf} $8 == $OrangeHubBrowseControl
+  ${OrIf} $8 == $OrangeHubDataSettingsControl
+  ${OrIf} $8 == $OrangeHubUserAgreementControl
+  ${OrIf} $8 == $OrangeHubPrivacyPolicyControl
+    Return
+  ${EndIf}
   System::Alloc 16
   Pop $0
   System::Call 'user32::GetWindowRect(p $HWNDPARENT, p $0)i.r1'
@@ -382,10 +400,10 @@ Function OrangeHubDragTimer
   System::Free $0
   IntOp $2 $2 - $4
   IntOp $3 $3 - $5
-  ; Leave the minimize and close controls clickable.
-  ${If} $3 < 80
-  ${AndIf} $2 > 12
-  ${AndIf} $2 < 640
+  ${If} $2 >= 0
+  ${AndIf} $2 < 797
+  ${AndIf} $3 >= 0
+  ${AndIf} $3 < 800
     Call OrangeHubDragWindow
   ${EndIf}
 FunctionEnd
@@ -409,17 +427,17 @@ Function OrangeHubInstFilesShow
   GetDlgItem $OrangeHubProgressBar $OrangeHubInstFilesPage 1004
   GetDlgItem $OrangeHubProgressLogButton $OrangeHubInstFilesPage 1027
   GetDlgItem $OrangeHubProgressLog $OrangeHubInstFilesPage 1016
-  System::Call 'user32::SetWindowPos(p $OrangeHubInstFilesPage, p 0, i 0, i 0, i 797, i 1468, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubInstFilesPage, p 0, i 0, i 0, i 797, i 800, i 0x0024)'
   SetCtlColors $OrangeHubInstFilesPage "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   SetCtlColors $OrangeHubProgressText "${OrangeHubInstallerText}" "transparent"
   SetCtlColors $OrangeHubProgressBar "${OrangeHubInstallerAccent}" "${OrangeHubInstallerSurface}"
   SendMessage $OrangeHubProgressText ${WM_SETTEXT} 0 "STR:正在安装 OrangeHub..."
-  System::Call 'user32::SetWindowPos(p $OrangeHubProgressText, p 0, i 96, i 590, i 605, i 30, i 0x0024)'
-  System::Call 'user32::SetWindowPos(p $OrangeHubProgressBar, p 0, i 96, i 640, i 605, i 30, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubProgressText, p 0, i 96, i 300, i 605, i 30, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubProgressBar, p 0, i 96, i 350, i 605, i 30, i 0x0024)'
   ShowWindow $OrangeHubProgressLogButton ${SW_HIDE}
   ShowWindow $OrangeHubProgressLog ${SW_HIDE}
   GetDlgItem $0 $HWNDPARENT 1
-  System::Call 'user32::SetWindowPos(p $0, p 0, i 96, i 740, i 605, i 52, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $0, p 0, i 96, i 460, i 605, i 52, i 0x0024)'
   SetCtlColors $0 "FFFFFF" "${OrangeHubInstallerAccent}"
   ShowWindow $0 ${SW_SHOW}
   GetDlgItem $0 $HWNDPARENT 2
@@ -436,10 +454,11 @@ Function OrangeHubFinishCreate
     Abort
   ${EndIf}
   SetCtlColors $OrangeHubDialog "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
-  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 797, i 1468, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 797, i 800, i 0x0024)'
 
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_NOTIFY} 0 0 0 80% 8% ""
+  nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 0 0 80% 8% ""
   Pop $OrangeHubDragSurface
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubDragSurface, w "", w "")'
   SetCtlColors $OrangeHubDragSurface "" "transparent"
   ${NSD_OnClick} $OrangeHubDragSurface OrangeHubDragWindow
   CreateFont $OrangeHubTopBarFont "Microsoft YaHei UI" 11 700
@@ -451,11 +470,13 @@ Function OrangeHubFinishCreate
   CreateFont $OrangeHubButtonFont "Microsoft YaHei UI" 11 700
   nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 82% 2% 7% 6% "-"
   Pop $OrangeHubMinimizeButton
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubMinimizeButton, w "", w "")'
   SendMessage $OrangeHubMinimizeButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubMinimizeButton OrangeHubMinimize
   nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 90% 2% 7% 6% "x"
   Pop $OrangeHubCloseButton
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubCloseButton, w "", w "")'
   SendMessage $OrangeHubCloseButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubCloseButton OrangeHubClose
@@ -465,8 +486,8 @@ Function OrangeHubFinishCreate
   SetCtlColors $OrangeHubLogoSurface "" "${OrangeHubInstallerBackground}"
   Push $OrangeHubLogoSurface
   Push 335
-  Push 367
-  Push 160
+  Push 200
+  Push 100
   Call OrangeHubApplyRoundRegion
   nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 38% 16% 18% 17% ""
   Pop $OrangeHubLogoControl
@@ -492,16 +513,17 @@ Function OrangeHubFinishCreate
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
   Push $OrangeHubInstallButtonSurface
   Push 542
-  Push 117
+  Push 64
   Push 30
   Call OrangeHubApplyRoundRegion
   nsDialogs::CreateControl BUTTON ${WS_VISIBLE}|${WS_CHILD}|${BS_PUSHBUTTON}|${BS_FLAT} 0 16% 50% 68% 8% "进入 OrangeHub"
   Pop $OrangeHubFinishButton
+  System::Call 'uxtheme::SetWindowTheme(p $OrangeHubFinishButton, w "", w "")'
   SendMessage $OrangeHubFinishButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubFinishButton "FFFFFF" "${OrangeHubInstallerAccent}"
   Push $OrangeHubFinishButton
   Push 542
-  Push 117
+  Push 64
   Push 30
   Call OrangeHubApplyRoundRegion
   ${NSD_OnClick} $OrangeHubFinishButton OrangeHubFinishLeave
