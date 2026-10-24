@@ -2,27 +2,28 @@
 !include nsDialogs.nsh
 !include WinMessages.nsh
 
-; OrangeHub's setup page is a compact, white single-column installer. The first
-; page is borderless and draws its own title bar so it matches the client chrome.
+; OrangeHub's installer follows the compact, white and blue layout of the
+; reference installer while keeping the real NSIS install engine underneath.
 !define OrangeHubInstallerBackground "FFFFFF"
-!define OrangeHubInstallerSurface "F5F7FA"
-!define OrangeHubInstallerText "1F2937"
-!define OrangeHubInstallerMuted "7B8794"
-!define OrangeHubInstallerAccent "111111"
+!define OrangeHubInstallerSurface "F5F8FC"
+!define OrangeHubInstallerText "1D2A3A"
+!define OrangeHubInstallerMuted "7A8797"
+!define OrangeHubInstallerAccent "2563EB"
+!define OrangeHubInstallerAccentSoft "EAF2FF"
 
 !undef MUI_BGCOLOR
 !define MUI_BGCOLOR "${OrangeHubInstallerBackground}"
 !undef MUI_TEXTCOLOR
 !define MUI_TEXTCOLOR "${OrangeHubInstallerText}"
 
-LangString OrangeHubWelcomeTitle ${LANG_SIMPCHINESE} "欢迎使用 OrangeHub"
+LangString OrangeHubWelcomeTitle ${LANG_SIMPCHINESE} "欢迎安装 OrangeHub"
 LangString OrangeHubWelcomeTitle ${LANG_ENGLISH} "Welcome to OrangeHub"
 LangString OrangeHubWelcomeText ${LANG_SIMPCHINESE} "SSH、文件传输、数据库和 Docker 工作区，一站式管理。"
 LangString OrangeHubWelcomeText ${LANG_ENGLISH} "SSH, file transfer, database, and Docker workspaces in one place."
 LangString OrangeHubFinishTitle ${LANG_SIMPCHINESE} "安装完成"
 LangString OrangeHubFinishTitle ${LANG_ENGLISH} "Installation complete"
-LangString OrangeHubFinishText ${LANG_SIMPCHINESE} "OrangeHub 已准备就绪，点击完成进入软件。"
-LangString OrangeHubFinishText ${LANG_ENGLISH} "OrangeHub is ready. Click Finish to open the app."
+LangString OrangeHubFinishText ${LANG_SIMPCHINESE} "OrangeHub 已准备就绪，点击进入软件。"
+LangString OrangeHubFinishText ${LANG_ENGLISH} "OrangeHub is ready. Click to open the app."
 LangString OrangeHubInstallNow ${LANG_SIMPCHINESE} "安装"
 LangString OrangeHubInstallNow ${LANG_ENGLISH} "Install"
 LangString OrangeHubAgreementPrefix ${LANG_SIMPCHINESE} "安装即同意"
@@ -35,14 +36,14 @@ LangString OrangeHubChoose ${LANG_SIMPCHINESE} "选择"
 LangString OrangeHubChoose ${LANG_ENGLISH} "Browse"
 LangString OrangeHubInstallNote ${LANG_SIMPCHINESE} "安装完成后可在应用设置中更改本地数据目录。"
 LangString OrangeHubInstallNote ${LANG_ENGLISH} "You can change the local data directory later in app settings."
-LangString OrangeHubDataDirectoryTitle ${LANG_SIMPCHINESE} "数据目录"
-LangString OrangeHubDataDirectoryTitle ${LANG_ENGLISH} "Data directory"
-LangString OrangeHubDataDirectoryDescription ${LANG_SIMPCHINESE} "连接配置、加密凭据和会话历史保存位置"
-LangString OrangeHubDataDirectoryDescription ${LANG_ENGLISH} "Connection profiles, encrypted credentials, and session history"
 LangString OrangeHubInstallDirectoryTitle ${LANG_SIMPCHINESE} "安装到"
 LangString OrangeHubInstallDirectoryTitle ${LANG_ENGLISH} "Install to"
 LangString OrangeHubInstallDirectoryHint ${LANG_SIMPCHINESE} "OrangeHub 程序文件保存位置"
 LangString OrangeHubInstallDirectoryHint ${LANG_ENGLISH} "Where OrangeHub program files will be stored"
+LangString OrangeHubDataDirectoryTitle ${LANG_SIMPCHINESE} "数据目录"
+LangString OrangeHubDataDirectoryTitle ${LANG_ENGLISH} "Data directory"
+LangString OrangeHubDataDirectoryHint ${LANG_SIMPCHINESE} "连接配置、加密凭据和会话历史保存位置"
+LangString OrangeHubDataDirectoryHint ${LANG_ENGLISH} "Connection profiles, encrypted credentials, and session history"
 LangString OrangeHubDataDirectoryRequired ${LANG_SIMPCHINESE} "请选择 OrangeHub 本地数据目录。"
 LangString OrangeHubDataDirectoryRequired ${LANG_ENGLISH} "Please choose a local OrangeHub data directory."
 LangString OrangeHubInstallDirectoryRequired ${LANG_SIMPCHINESE} "请选择 OrangeHub 安装位置。"
@@ -51,12 +52,16 @@ LangString OrangeHubPolicyUser ${LANG_SIMPCHINESE} "OrangeHub 用户协议：请
 LangString OrangeHubPolicyUser ${LANG_ENGLISH} "OrangeHub User Agreement: continue only after reading and accepting the terms."
 LangString OrangeHubPolicyPrivacy ${LANG_SIMPCHINESE} "OrangeHub 隐私政策：连接配置和凭据仅保存在你选择的本地数据目录。"
 LangString OrangeHubPolicyPrivacy ${LANG_ENGLISH} "OrangeHub Privacy Policy: connection profiles and credentials stay in your selected local data directory."
+LangString OrangeHubReady ${LANG_SIMPCHINESE} "OrangeHub 已准备就绪"
+LangString OrangeHubReady ${LANG_ENGLISH} "OrangeHub is ready"
+LangString OrangeHubOpen ${LANG_SIMPCHINESE} "进入 OrangeHub"
+LangString OrangeHubOpen ${LANG_ENGLISH} "Open OrangeHub"
 
 !define MUI_WELCOMEPAGE_TITLE "$(OrangeHubWelcomeTitle)"
 !define MUI_WELCOMEPAGE_TEXT "$(OrangeHubWelcomeText)"
 !define MUI_FINISHPAGE_TITLE "$(OrangeHubFinishTitle)"
 !define MUI_FINISHPAGE_TEXT "$(OrangeHubFinishText)"
-!define MUI_FINISHPAGE_BUTTON "进入 OrangeHub"
+!define MUI_FINISHPAGE_BUTTON "$(OrangeHubOpen)"
 
 Var OrangeHubDataDirectory
 Var OrangeHubDataDirectoryControl
@@ -65,16 +70,18 @@ Var OrangeHubInstallDirectory
 Var OrangeHubInstallDirectoryControl
 Var OrangeHubInstallBrowseControl
 Var OrangeHubInstallButton
+Var OrangeHubInstallButtonSurface
 Var OrangeHubDialog
+Var OrangeHubDragSurface
 Var OrangeHubTopBarControl
 Var OrangeHubMinimizeButton
 Var OrangeHubCloseButton
 Var OrangeHubFinishButton
+Var OrangeHubLogoSurface
 Var OrangeHubLogoControl
 Var OrangeHubLogoFallback
-Var OrangeHubInstallSurface
-Var OrangeHubInstallButtonSurface
-Var OrangeHubTitleControl
+Var OrangeHubHeroTitle
+Var OrangeHubHeroSubtitle
 Var OrangeHubAgreementPrefixControl
 Var OrangeHubUserAgreementControl
 Var OrangeHubPrivacyPolicyControl
@@ -84,7 +91,13 @@ Var OrangeHubInstallHint
 Var OrangeHubDataLabel
 Var OrangeHubDataHint
 Var OrangeHubNoteControl
+Var OrangeHubOptionTitle
+Var OrangeHubOptionOne
+Var OrangeHubOptionTwo
+Var OrangeHubOptionThree
 Var OrangeHubTopBarFont
+Var OrangeHubTitleFont
+Var OrangeHubBodyFont
 Var OrangeHubButtonFont
 Var OrangeHubWindowCustomized
 Var OrangeHubInstFilesPage
@@ -93,9 +106,17 @@ Var OrangeHubProgressText
 Var OrangeHubProgressLogButton
 Var OrangeHubProgressLog
 
+Function OrangeHubApplyRoundRegion
+  ; Stack order: HWND, width, height, radius.
+  Pop $3
+  Pop $2
+  Pop $1
+  Pop $0
+  System::Call 'gdi32::CreateRoundRectRgn(i 0, i 0, i $1, i $2, i $3, i $3)i.r4'
+  System::Call 'user32::SetWindowRgn(p $0, p $4, i 1)'
+FunctionEnd
+
 Function OrangeHubDataDirectoryCreate
-  ; The custom page must fill the resized window. The default MUI page is much
-  ; shorter, which is why controls previously disappeared below the viewport.
   Call OrangeHubApplyWindowChrome
 
   ${If} $OrangeHubInstallDirectory == ""
@@ -118,114 +139,152 @@ Function OrangeHubDataDirectoryCreate
     Abort
   ${EndIf}
   SetCtlColors $OrangeHubDialog "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
-  ; Move the page dialog over the full borderless client area.
-  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 720, i 900, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 760, i 940, i 0x0024)'
 
-  ; Create the lower settings surface before its child controls. Windows paints
-  ; later-created child windows on top of earlier ones, so this must be the
-  ; first control in the content area.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 0 150u 100% 74u ""
-  Pop $OrangeHubInstallSurface
-  SetCtlColors $OrangeHubInstallSurface "" "${OrangeHubInstallerSurface}"
+  ; A single lower surface creates the same visual split as the reference UI.
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 0 63% 100% 37% ""
+  Pop $0
+  SetCtlColors $0 "" "${OrangeHubInstallerSurface}"
 
-  ; Custom title bar with draggable brand text and window actions.
+  ; The transparent drag surface keeps the full title area interactive. The
+  ; timer below starts the move on mouse-down, which works for a borderless NSIS window.
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_NOTIFY} 0 0 0 100% 8% ""
+  Pop $OrangeHubDragSurface
+  SetCtlColors $OrangeHubDragSurface "" "transparent"
+  ${NSD_OnClick} $OrangeHubDragSurface OrangeHubDragWindow
+
   CreateFont $OrangeHubTopBarFont "Microsoft YaHei UI" 11 700
-  ${NSD_CreateLabel} 5% 4u 55% 18u "OrangeHub"
+  ${NSD_CreateLabel} 5% 2% 50% 5% "OrangeHub"
   Pop $OrangeHubTopBarControl
   SendMessage $OrangeHubTopBarControl ${WM_SETFONT} $OrangeHubTopBarFont 1
   SetCtlColors $OrangeHubTopBarControl "${OrangeHubInstallerText}" "transparent"
-  ${NSD_OnClick} $OrangeHubTopBarControl OrangeHubDragWindow
 
   CreateFont $OrangeHubButtonFont "Microsoft YaHei UI" 11 700
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 82% 3u 7% 18u "-"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 82% 2% 7% 6% "-"
   Pop $OrangeHubMinimizeButton
   SendMessage $OrangeHubMinimizeButton ${WM_SETFONT} $OrangeHubButtonFont 1
-  SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
+  SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubMinimizeButton OrangeHubMinimize
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 90% 3u 7% 18u "x"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 90% 2% 7% 6% "x"
   Pop $OrangeHubCloseButton
   SendMessage $OrangeHubCloseButton ${WM_SETFONT} $OrangeHubButtonFont 1
-  SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
+  SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubCloseButton OrangeHubClose
 
-  ; Extract the icon embedded in this installer so the brand mark is available
-  ; at runtime even though the source .ico file is not shipped beside it.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 35% 22u 30% 54u ""
+  ; Brand mark: a large blue roundel with the embedded OrangeHub icon.
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 31% 10% 38% 25% ""
+  Pop $OrangeHubLogoSurface
+  SetCtlColors $OrangeHubLogoSurface "" "${OrangeHubInstallerAccentSoft}"
+  Push $OrangeHubLogoSurface
+  Push 288
+  Push 235
+  Push 118
+  Call OrangeHubApplyRoundRegion
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 39% 14% 22% 17% ""
   Pop $OrangeHubLogoControl
-  CreateFont $OrangeHubTopBarFont "Microsoft YaHei UI" 30 700
-  ${NSD_CreateLabel} 35% 22u 30% 54u "O"
-  Pop $OrangeHubLogoFallback
-  SendMessage $OrangeHubLogoFallback ${WM_SETFONT} $OrangeHubTopBarFont 1
-  SetCtlColors $OrangeHubLogoFallback "F97316" "${OrangeHubInstallerBackground}"
-  System::Call 'shell32::ExtractIcon(i 0, t "$EXEPATH", i 0) i.r0'
+  System::Call 'shell32::ExtractIcon(i 0, t "$EXEPATH", i 0)i.r0'
   ${If} $0 != 0
     SendMessage $OrangeHubLogoControl ${STM_SETIMAGE} ${IMAGE_ICON} $0
-    ShowWindow $OrangeHubLogoFallback ${SW_HIDE}
   ${Else}
-    ShowWindow $OrangeHubLogoFallback ${SW_SHOW}
+    CreateFont $OrangeHubTitleFont "Microsoft YaHei UI" 30 700
+    ${NSD_CreateLabel} 0 0 100% 100% "O"
+    Pop $OrangeHubLogoFallback
+    SendMessage $OrangeHubLogoFallback ${WM_SETFONT} $OrangeHubTitleFont 1
+    SetCtlColors $OrangeHubLogoFallback "${OrangeHubInstallerAccent}" "transparent"
   ${EndIf}
 
-  ; Paint the primary action as a black surface plus a text layer. This avoids
-  ; theme-specific button rendering that can drop the label or background.
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 100u 76% 30u ""
+  CreateFont $OrangeHubTitleFont "Microsoft YaHei UI" 15 700
+  ${NSD_CreateLabel} 0 37% 100% 4% "OrangeHub"
+  Pop $OrangeHubHeroTitle
+  SendMessage $OrangeHubHeroTitle ${WM_SETFONT} $OrangeHubTitleFont 1
+  SetCtlColors $OrangeHubHeroTitle "${OrangeHubInstallerText}" "transparent"
+  CreateFont $OrangeHubBodyFont "Microsoft YaHei UI" 9 400
+  ${NSD_CreateLabel} 0 41% 100% 4% "SSH · 数据库 · 文件传输 · Docker"
+  Pop $OrangeHubHeroSubtitle
+  SendMessage $OrangeHubHeroSubtitle ${WM_SETFONT} $OrangeHubBodyFont 1
+  SetCtlColors $OrangeHubHeroSubtitle "${OrangeHubInstallerMuted}" "transparent"
+
+  ; Primary action, rounded like the reference installer.
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 48% 76% 9% ""
   Pop $OrangeHubInstallButtonSurface
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 100u 76% 30u "安装"
+  Push $OrangeHubInstallButtonSurface
+  Push 578
+  Push 74
+  Push 30
+  Call OrangeHubApplyRoundRegion
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 48% 76% 9% "$(OrangeHubInstallNow)"
   Pop $OrangeHubInstallButton
   SendMessage $OrangeHubInstallButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubInstallButton "FFFFFF" "${OrangeHubInstallerAccent}"
+  Push $OrangeHubInstallButton
+  Push 578
+  Push 74
+  Push 30
+  Call OrangeHubApplyRoundRegion
   ${NSD_OnClick} $OrangeHubInstallButton OrangeHubStartInstall
 
-  ; The agreement is made of real links so the user can inspect both texts.
-  ${NSD_CreateLabel} 23% 134u 22% 16u "安装即同意"
+  ${NSD_CreateLabel} 19% 54% 24% 4% "$(OrangeHubAgreementPrefix)"
   Pop $OrangeHubAgreementPrefixControl
+  SendMessage $OrangeHubAgreementPrefixControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubAgreementPrefixControl "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateLink} 45% 134u 19% 16u "用户协议"
+  ${NSD_CreateLink} 44% 54% 18% 4% "$(OrangeHubUserAgreement)"
   Pop $OrangeHubUserAgreementControl
+  SendMessage $OrangeHubUserAgreementControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubUserAgreementControl "${OrangeHubInstallerText}" "transparent"
   ${NSD_OnClick} $OrangeHubUserAgreementControl OrangeHubOpenUserAgreement
-  ${NSD_CreateLabel} 64% 134u 5% 16u "和"
+  ${NSD_CreateLabel} 63% 54% 5% 4% "和"
   Pop $OrangeHubAgreementAndControl
+  SendMessage $OrangeHubAgreementAndControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubAgreementAndControl "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateLink} 69% 134u 20% 16u "隐私政策"
+  ${NSD_CreateLink} 68% 54% 18% 4% "$(OrangeHubPrivacyPolicy)"
   Pop $OrangeHubPrivacyPolicyControl
+  SendMessage $OrangeHubPrivacyPolicyControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubPrivacyPolicyControl "${OrangeHubInstallerText}" "transparent"
   ${NSD_OnClick} $OrangeHubPrivacyPolicyControl OrangeHubOpenPrivacyPolicy
 
-  ; Install location row.
-  ${NSD_CreateLabel} 8% 154u 84% 14u "安装到"
+  ; Settings area: install location and data location remain editable.
+  CreateFont $OrangeHubTitleFont "Microsoft YaHei UI" 10 700
+  ${NSD_CreateLabel} 8% 65% 32% 4% "$(OrangeHubInstallDirectoryTitle)"
   Pop $OrangeHubInstallLabel
+  SendMessage $OrangeHubInstallLabel ${WM_SETFONT} $OrangeHubTitleFont 1
   SetCtlColors $OrangeHubInstallLabel "${OrangeHubInstallerText}" "transparent"
-  ${NSD_CreateLabel} 8% 168u 84% 12u "OrangeHub 程序文件保存位置"
+  ${NSD_CreateLabel} 8% 69% 70% 3% "$(OrangeHubInstallDirectoryHint)"
   Pop $OrangeHubInstallHint
+  SendMessage $OrangeHubInstallHint ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubInstallHint "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateDirRequest} 8% 181u 68% 16u "$OrangeHubInstallDirectory"
+  ${NSD_CreateDirRequest} 8% 72% 68% 5% "$OrangeHubInstallDirectory"
   Pop $OrangeHubInstallDirectoryControl
   SetCtlColors $OrangeHubInstallDirectoryControl "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
-  ${NSD_CreateButton} 78% 181u 14% 16u "选择"
+  ${NSD_CreateButton} 78% 72% 14% 5% "$(OrangeHubChoose)"
   Pop $OrangeHubInstallBrowseControl
+  SendMessage $OrangeHubInstallBrowseControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubInstallBrowseControl "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   ${NSD_OnClick} $OrangeHubInstallBrowseControl OrangeHubInstallDirectoryBrowse
 
-  ; Local data location row.
-  ${NSD_CreateLabel} 8% 199u 84% 14u "数据目录"
+  ${NSD_CreateLabel} 8% 79% 32% 4% "$(OrangeHubDataDirectoryTitle)"
   Pop $OrangeHubDataLabel
+  SendMessage $OrangeHubDataLabel ${WM_SETFONT} $OrangeHubTitleFont 1
   SetCtlColors $OrangeHubDataLabel "${OrangeHubInstallerText}" "transparent"
-  ${NSD_CreateLabel} 8% 213u 84% 12u "连接配置、加密凭据和会话历史保存位置"
+  ${NSD_CreateLabel} 8% 83% 70% 3% "$(OrangeHubDataDirectoryHint)"
   Pop $OrangeHubDataHint
+  SendMessage $OrangeHubDataHint ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubDataHint "${OrangeHubInstallerMuted}" "transparent"
-  ${NSD_CreateDirRequest} 8% 226u 68% 16u "$OrangeHubDataDirectory"
+  ${NSD_CreateDirRequest} 8% 86% 68% 5% "$OrangeHubDataDirectory"
   Pop $OrangeHubDataDirectoryControl
   SetCtlColors $OrangeHubDataDirectoryControl "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
-  ${NSD_CreateButton} 78% 226u 14% 16u "选择"
+  ${NSD_CreateButton} 78% 86% 14% 5% "$(OrangeHubChoose)"
   Pop $OrangeHubBrowseControl
+  SendMessage $OrangeHubBrowseControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubBrowseControl "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   ${NSD_OnClick} $OrangeHubBrowseControl OrangeHubDataDirectoryBrowse
 
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER} 0 0 246u 100% 14u "安装完成后可在应用设置中更改本地数据目录。"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER} 0 0 93% 100% 4% "$(OrangeHubInstallNote)"
   Pop $OrangeHubNoteControl
+  SendMessage $OrangeHubNoteControl ${WM_SETFONT} $OrangeHubBodyFont 1
   SetCtlColors $OrangeHubNoteControl "${OrangeHubInstallerMuted}" "transparent"
 
+  ${NSD_CreateTimer} OrangeHubDragTimer 25
   nsDialogs::Show
 FunctionEnd
 
@@ -234,12 +293,14 @@ Function OrangeHubApplyWindowChrome
     Return
   ${EndIf}
   StrCpy $OrangeHubWindowCustomized 1
-  ; Remove the native caption, system menu, and resize frame.
+  ; Remove the native caption and frame. The timer callback below supplies a
+  ; native drag operation while keeping the custom title bar visually clean.
   System::Call 'user32::GetWindowLong(p $HWNDPARENT, i -16)i.r0'
   IntOp $0 $0 & 0xFF30FFFF
-  System::Call 'user32::SetWindowLong(p $HWNDPARENT, i -16, i $0)'
-  System::Call 'user32::SetWindowPos(p $HWNDPARENT, p 0, i 0, i 0, i 720, i 900, i 0x0026)'
-  System::Call 'user32::SetWindowPos(p $HWNDPARENT, p 0, i 0, i 0, i 0, i 0, i 0x0027)'
+  System::Call 'user32::SetWindowLong(p $HWNDPARENT, p -16, i $0)'
+  System::Call 'user32::SetWindowPos(p $HWNDPARENT, p 0, i 0, i 0, i 760, i 940, i 0x0026)'
+  System::Call 'gdi32::CreateRoundRectRgn(i 0, i 0, i 760, i 940, i 28, i 28)i.r0'
+  System::Call 'user32::SetWindowRgn(p $HWNDPARENT, p r0, i 1)'
   GetDlgItem $0 $HWNDPARENT 1
   ShowWindow $0 ${SW_HIDE}
   GetDlgItem $0 $HWNDPARENT 2
@@ -255,7 +316,7 @@ Function OrangeHubRestoreWindowChrome
   StrCpy $OrangeHubWindowCustomized 0
   System::Call 'user32::GetWindowLong(p $HWNDPARENT, i -16)i.r0'
   IntOp $0 $0 | 0x00CF0000
-  System::Call 'user32::SetWindowLong(p $HWNDPARENT, i -16, i $0)'
+  System::Call 'user32::SetWindowLong(p $HWNDPARENT, p -16, i $0)'
   System::Call 'user32::SetWindowPos(p $HWNDPARENT, p 0, i 0, i 0, i 0, i 0, i 0x0027)'
   GetDlgItem $0 $HWNDPARENT 1
   ShowWindow $0 ${SW_SHOW}
@@ -270,6 +331,33 @@ Function OrangeHubDragWindow
   SendMessage $HWNDPARENT ${WM_NCLBUTTONDOWN} ${HTCAPTION} 0
 FunctionEnd
 
+Function OrangeHubDragTimer
+  System::Call 'user32::GetAsyncKeyState(i 1)i.r0'
+  IntOp $0 $0 & 0x8000
+  ${If} $0 = 0
+    Return
+  ${EndIf}
+
+  System::Alloc 8
+  Pop $0
+  System::Call 'user32::GetCursorPos(p $0)i.r1'
+  System::Call '*$0(i.r2, i.r3)'
+  System::Free $0
+  System::Alloc 16
+  Pop $0
+  System::Call 'user32::GetWindowRect(p $HWNDPARENT, p $0)i.r1'
+  System::Call '*$0(i.r4, i.r5, i.r6, i.r7)'
+  System::Free $0
+  IntOp $2 $2 - $4
+  IntOp $3 $3 - $5
+  ; Leave the minimize and close controls clickable.
+  ${If} $3 < 68
+  ${AndIf} $2 > 12
+  ${AndIf} $2 < 625
+    Call OrangeHubDragWindow
+  ${EndIf}
+FunctionEnd
+
 Function OrangeHubMinimize
   ShowWindow $HWNDPARENT ${SW_MINIMIZE}
 FunctionEnd
@@ -279,31 +367,27 @@ Function OrangeHubClose
 FunctionEnd
 
 Function OrangeHubStartInstall
-  ; Follow the normal NSIS page transition so the built-in installer engine runs
-  ; the sections while the next page presents the matching progress state.
   GetDlgItem $0 $HWNDPARENT 1
   SendMessage $0 ${BM_CLICK} 0 0
 FunctionEnd
 
 Function OrangeHubInstFilesShow
-  ; Keep the actual NSIS section engine but present its progress in the same
-  ; centered position as the black install button.
   FindWindow $OrangeHubInstFilesPage "#32770" "" $HWNDPARENT
   GetDlgItem $OrangeHubProgressText $OrangeHubInstFilesPage 1006
   GetDlgItem $OrangeHubProgressBar $OrangeHubInstFilesPage 1004
   GetDlgItem $OrangeHubProgressLogButton $OrangeHubInstFilesPage 1027
   GetDlgItem $OrangeHubProgressLog $OrangeHubInstFilesPage 1016
-  System::Call 'user32::SetWindowPos(p $OrangeHubInstFilesPage, p 0, i 0, i 0, i 720, i 900, i 0x0024)'
-  System::Call 'user32::SetWindowPos(p $OrangeHubProgressText, p 0, i 86, i 360, i 548, i 30, i 0x0024)'
-  System::Call 'user32::SetWindowPos(p $OrangeHubProgressBar, p 0, i 86, i 410, i 548, i 30, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubInstFilesPage, p 0, i 0, i 0, i 760, i 940, i 0x0024)'
   SetCtlColors $OrangeHubInstFilesPage "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
   SetCtlColors $OrangeHubProgressText "${OrangeHubInstallerText}" "transparent"
   SetCtlColors $OrangeHubProgressBar "${OrangeHubInstallerAccent}" "${OrangeHubInstallerSurface}"
   SendMessage $OrangeHubProgressText ${WM_SETTEXT} 0 "STR:正在安装 OrangeHub..."
+  System::Call 'user32::SetWindowPos(p $OrangeHubProgressText, p 0, i 90, i 390, i 580, i 30, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubProgressBar, p 0, i 90, i 440, i 580, i 30, i 0x0024)'
   ShowWindow $OrangeHubProgressLogButton ${SW_HIDE}
   ShowWindow $OrangeHubProgressLog ${SW_HIDE}
   GetDlgItem $0 $HWNDPARENT 1
-  System::Call 'user32::SetWindowPos(p $0, p 0, i 86, i 500, i 548, i 46, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $0, p 0, i 90, i 540, i 580, i 52, i 0x0024)'
   SetCtlColors $0 "FFFFFF" "${OrangeHubInstallerAccent}"
   ShowWindow $0 ${SW_SHOW}
   GetDlgItem $0 $HWNDPARENT 2
@@ -313,62 +397,109 @@ Function OrangeHubInstFilesShow
 FunctionEnd
 
 Function OrangeHubFinishCreate
-  ; Render completion inside the same white, borderless installer canvas.
+  Call OrangeHubApplyWindowChrome
   nsDialogs::Create 1018
   Pop $OrangeHubDialog
   ${If} $OrangeHubDialog == error
     Abort
   ${EndIf}
   SetCtlColors $OrangeHubDialog "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
-  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 720, i 900, i 0x0024)'
+  System::Call 'user32::SetWindowPos(p $OrangeHubDialog, p 0, i 0, i 0, i 760, i 940, i 0x0024)'
 
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_NOTIFY} 0 0 0 100% 8% ""
+  Pop $OrangeHubDragSurface
+  SetCtlColors $OrangeHubDragSurface "" "transparent"
+  ${NSD_OnClick} $OrangeHubDragSurface OrangeHubDragWindow
   CreateFont $OrangeHubTopBarFont "Microsoft YaHei UI" 11 700
-  ${NSD_CreateLabel} 5% 4u 55% 18u "OrangeHub"
+  ${NSD_CreateLabel} 5% 2% 50% 5% "OrangeHub"
   Pop $OrangeHubTopBarControl
   SendMessage $OrangeHubTopBarControl ${WM_SETFONT} $OrangeHubTopBarFont 1
   SetCtlColors $OrangeHubTopBarControl "${OrangeHubInstallerText}" "transparent"
-  ${NSD_OnClick} $OrangeHubTopBarControl OrangeHubDragWindow
-
   CreateFont $OrangeHubButtonFont "Microsoft YaHei UI" 11 700
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 82% 3u 7% 18u "-"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 82% 2% 7% 6% "-"
   Pop $OrangeHubMinimizeButton
   SendMessage $OrangeHubMinimizeButton ${WM_SETFONT} $OrangeHubButtonFont 1
-  SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
+  SetCtlColors $OrangeHubMinimizeButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubMinimizeButton OrangeHubMinimize
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 90% 3u 7% 18u "x"
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 90% 2% 7% 6% "x"
   Pop $OrangeHubCloseButton
   SendMessage $OrangeHubCloseButton ${WM_SETFONT} $OrangeHubButtonFont 1
-  SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerText}" "${OrangeHubInstallerBackground}"
+  SetCtlColors $OrangeHubCloseButton "${OrangeHubInstallerMuted}" "transparent"
   ${NSD_OnClick} $OrangeHubCloseButton OrangeHubClose
 
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 35% 22u 30% 54u ""
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 31% 10% 38% 25% ""
+  Pop $OrangeHubLogoSurface
+  SetCtlColors $OrangeHubLogoSurface "" "${OrangeHubInstallerAccentSoft}"
+  Push $OrangeHubLogoSurface
+  Push 288
+  Push 235
+  Push 118
+  Call OrangeHubApplyRoundRegion
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_ICON}|${SS_CENTERIMAGE}|${SS_CENTER} 0 39% 14% 22% 17% ""
   Pop $OrangeHubLogoControl
-  CreateFont $OrangeHubTopBarFont "Microsoft YaHei UI" 30 700
-  ${NSD_CreateLabel} 35% 22u 30% 54u "O"
-  Pop $OrangeHubLogoFallback
-  SendMessage $OrangeHubLogoFallback ${WM_SETFONT} $OrangeHubTopBarFont 1
-  SetCtlColors $OrangeHubLogoFallback "F97316" "${OrangeHubInstallerBackground}"
-  System::Call 'shell32::ExtractIcon(i 0, t "$EXEPATH", i 0) i.r0'
+  System::Call 'shell32::ExtractIcon(i 0, t "$EXEPATH", i 0)i.r0'
   ${If} $0 != 0
     SendMessage $OrangeHubLogoControl ${STM_SETIMAGE} ${IMAGE_ICON} $0
-    ShowWindow $OrangeHubLogoFallback ${SW_HIDE}
-  ${Else}
-    ShowWindow $OrangeHubLogoFallback ${SW_SHOW}
   ${EndIf}
-  ${NSD_CreateLabel} 0 100u 100% 28u "安装完成"
-  Pop $OrangeHubTitleControl
-  SetCtlColors $OrangeHubTitleControl "${OrangeHubInstallerText}" "transparent"
-  ${NSD_CreateLabel} 0 132u 100% 24u "OrangeHub 已准备就绪，点击进入软件。"
-  Pop $OrangeHubAgreementPrefixControl
-  SetCtlColors $OrangeHubAgreementPrefixControl "${OrangeHubInstallerMuted}" "transparent"
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 170u 76% 30u ""
+
+  CreateFont $OrangeHubTitleFont "Microsoft YaHei UI" 15 700
+  ${NSD_CreateLabel} 0 39% 100% 5% "$(OrangeHubReady)"
+  Pop $OrangeHubHeroTitle
+  SendMessage $OrangeHubHeroTitle ${WM_SETFONT} $OrangeHubTitleFont 1
+  SetCtlColors $OrangeHubHeroTitle "${OrangeHubInstallerText}" "transparent"
+  CreateFont $OrangeHubBodyFont "Microsoft YaHei UI" 10 400
+  ${NSD_CreateLabel} 0 45% 100% 5% "$(OrangeHubFinishText)"
+  Pop $OrangeHubHeroSubtitle
+  SendMessage $OrangeHubHeroSubtitle ${WM_SETFONT} $OrangeHubBodyFont 1
+  SetCtlColors $OrangeHubHeroSubtitle "${OrangeHubInstallerMuted}" "transparent"
+
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 12% 61% 76% 9% ""
   Pop $OrangeHubInstallButtonSurface
   SetCtlColors $OrangeHubInstallButtonSurface "" "${OrangeHubInstallerAccent}"
-  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 170u 76% 30u "进入 OrangeHub"
+  Push $OrangeHubInstallButtonSurface
+  Push 578
+  Push 74
+  Push 30
+  Call OrangeHubApplyRoundRegion
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD}|${SS_CENTER}|${SS_NOTIFY} 0 12% 61% 76% 9% "$(OrangeHubOpen)"
   Pop $OrangeHubFinishButton
   SendMessage $OrangeHubFinishButton ${WM_SETFONT} $OrangeHubButtonFont 1
   SetCtlColors $OrangeHubFinishButton "FFFFFF" "${OrangeHubInstallerAccent}"
+  Push $OrangeHubFinishButton
+  Push 578
+  Push 74
+  Push 30
+  Call OrangeHubApplyRoundRegion
   ${NSD_OnClick} $OrangeHubFinishButton OrangeHubFinishLeave
+
+  ; The lower area mirrors the reference option list with clear check marks.
+  nsDialogs::CreateControl STATIC ${WS_VISIBLE}|${WS_CHILD} 0 0 63% 100% 37% ""
+  Pop $0
+  SetCtlColors $0 "" "${OrangeHubInstallerSurface}"
+  CreateFont $OrangeHubTitleFont "Microsoft YaHei UI" 10 700
+  ${NSD_CreateLabel} 8% 67% 42% 5% "安装选项"
+  Pop $OrangeHubOptionTitle
+  SendMessage $OrangeHubOptionTitle ${WM_SETFONT} $OrangeHubTitleFont 1
+  SetCtlColors $OrangeHubOptionTitle "${OrangeHubInstallerText}" "transparent"
+  ${NSD_CreateLabel} 8% 74% 70% 5% "创建开始菜单快捷方式"
+  Pop $OrangeHubOptionOne
+  SetCtlColors $OrangeHubOptionOne "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateLabel} 8% 81% 70% 5% "创建桌面快捷方式"
+  Pop $OrangeHubOptionTwo
+  SetCtlColors $OrangeHubOptionTwo "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateLabel} 8% 88% 70% 5% "检查并安装 WebView2"
+  Pop $OrangeHubOptionThree
+  SetCtlColors $OrangeHubOptionThree "${OrangeHubInstallerMuted}" "transparent"
+  ${NSD_CreateLabel} 88% 74% 6% 5% "✓"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
+  ${NSD_CreateLabel} 88% 81% 6% 5% "✓"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
+  ${NSD_CreateLabel} 88% 88% 6% 5% "✓"
+  Pop $0
+  SetCtlColors $0 "${OrangeHubInstallerAccent}" "transparent"
+  ${NSD_CreateTimer} OrangeHubDragTimer 25
   nsDialogs::Show
 FunctionEnd
 
@@ -378,11 +509,11 @@ Function OrangeHubFinishLeave
 FunctionEnd
 
 Function OrangeHubOpenUserAgreement
-  MessageBox MB_OK "OrangeHub 用户协议：请仅在你已阅读并同意使用条款后继续安装。"
+  MessageBox MB_OK "$(OrangeHubPolicyUser)"
 FunctionEnd
 
 Function OrangeHubOpenPrivacyPolicy
-  MessageBox MB_OK "OrangeHub 隐私政策：连接配置和凭据仅保存在你选择的本地数据目录。"
+  MessageBox MB_OK "$(OrangeHubPolicyPrivacy)"
 FunctionEnd
 
 Function OrangeHubInstallDirectoryBrowse
@@ -407,19 +538,17 @@ Function OrangeHubDataDirectoryLeave
   ${NSD_GetText} $OrangeHubInstallDirectoryControl $OrangeHubInstallDirectory
   StrCpy $INSTDIR $OrangeHubInstallDirectory
   ${If} $INSTDIR == ""
-    MessageBox MB_ICONSTOP "请选择 OrangeHub 安装位置。"
+    MessageBox MB_ICONSTOP "$(OrangeHubInstallDirectoryRequired)"
     Abort
   ${EndIf}
   ${NSD_GetText} $OrangeHubDataDirectoryControl $0
   StrCpy $OrangeHubDataDirectory $0
   ${If} $OrangeHubDataDirectory == ""
-    MessageBox MB_ICONSTOP "请选择 OrangeHub 本地数据目录。"
+    MessageBox MB_ICONSTOP "$(OrangeHubDataDirectoryRequired)"
     Abort
   ${EndIf}
 FunctionEnd
 
-; The data directory is selected during installation and written beside the app.
-; The first-run onboarding reads this value before creating the vault.
 !macro NSIS_HOOK_POSTINSTALL
   CreateDirectory "$INSTDIR"
   FileOpen $0 "$INSTDIR\orangehub-install-data-directory.txt" w
