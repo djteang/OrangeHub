@@ -180,6 +180,19 @@ index 48d051f..0196854 100644
    values.emplace("runtime.perUserInstallDirectory",
                   state.per_user_install_directory);
    values.emplace("runtime.perMachineInstallDirectory",
+diff --git a/src/theme.cpp b/src/theme.cpp
+index 5fd1b72..c9cdbe2 100644
+--- a/src/theme.cpp
++++ b/src/theme.cpp
+@@ -333,7 +333,7 @@ ThemeLoadResult LoadTheme(const std::filesystem::path& theme_root,
+     package.window.width = window.at("width").get<int>();
+     package.window.height = window.at("height").get<int>();
+     package.window.radius = window.at("radius").get<int>();
+-    if (package.window.width < 640 || package.window.width > 1600 ||
++    if (package.window.width < 480 || package.window.width > 1600 ||
+         package.window.height < 400 || package.window.height > 1200 ||
+         package.window.radius < 0 || package.window.radius > 64) {
+       throw std::runtime_error("theme window dimensions are out of range");
 diff --git a/src/window.cpp b/src/window.cpp
 index 93c2ca2..9d8b0f2 100644
 --- a/src/window.cpp
