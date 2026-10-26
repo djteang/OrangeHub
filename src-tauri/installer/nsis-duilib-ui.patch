@@ -1,0 +1,562 @@
+diff --git a/include/nsis_dui/renderer.hpp b/include/nsis_dui/renderer.hpp
+index 43a3f52..10ecd46 100644
+--- a/include/nsis_dui/renderer.hpp
++++ b/include/nsis_dui/renderer.hpp
+@@ -11,6 +11,7 @@ struct ViewState {
+   std::string version;
+   std::string status;
+   std::string install_directory;
++  std::string data_directory;
+   std::string per_user_install_directory;
+   std::string per_machine_install_directory;
+   int progress = 0;
+diff --git a/include/nsis_dui/window.hpp b/include/nsis_dui/window.hpp
+index 7e1412b..485990f 100644
+--- a/include/nsis_dui/window.hpp
++++ b/include/nsis_dui/window.hpp
+@@ -16,6 +16,7 @@ enum class WindowEvent {
+   primary_current,
+   primary_all,
+   browse,
++  browse_data,
+   browse_current,
+   browse_all,
+   scope_current,
+@@ -52,6 +53,12 @@ class InstallerWindow final {
+   void SetInstallDirectory(const std::string& install_directory) noexcept;
+   void SetPerUserInstallDirectory(const std::string& install_directory) noexcept;
+   void SetPerMachineInstallDirectory(const std::string& install_directory) noexcept;
++  void SetControlText(const std::string& name,
++                      const std::string& value) noexcept;
++  [[nodiscard]] std::string GetControlText(
++      const std::string& name) const noexcept;
++  [[nodiscard]] bool IsControlChecked(const std::string& name,
++                                      bool& checked) const noexcept;
+   void ResetEvent() noexcept;
+   void NextFeature(int direction = 1) noexcept;
+ 
+diff --git a/plugin/nsis-duilib-ui.def b/plugin/nsis-duilib-ui.def
+index 9eec73a..fed7f88 100644
+--- a/plugin/nsis-duilib-ui.def
++++ b/plugin/nsis-duilib-ui.def
+@@ -1,6 +1,8 @@
+ LIBRARY "nsis-duilib-ui"
+ EXPORTS
+   ConcealHost
++  GetCheckState
++  GetControlText
+   GetVersion=NsisDuiGetVersion
+   Hide
+   Init
+@@ -9,6 +11,7 @@ EXPORTS
+   SetPage
+   SetProgress
+   SetInstallDirectory
++  SetControlText
+   SetPerUserInstallDirectory
+   SetPerMachineInstallDirectory
+   SetStatus
+diff --git a/plugin/nsis_plugin.cpp b/plugin/nsis_plugin.cpp
+index a9d069a..7640fda 100644
+--- a/plugin/nsis_plugin.cpp
++++ b/plugin/nsis_plugin.cpp
+@@ -218,6 +218,7 @@ void CALLBACK ProgressTimerProc(HWND, UINT, UINT_PTR, DWORD) {
+       return;
+     }
+     g_cancel_forwarded = true;
++    g_window->Close();
+     PostMessageW(g_parent, WM_COMMAND, IDCANCEL, 0);
+     return;
+   }
+@@ -438,6 +439,44 @@ NSIS_ENTRY(SetInstallDirectory) {
+   stack.Ok();
+ }
+ 
++NSIS_ENTRY(SetControlText) {
++  Stack stack(string_size, stack_top);
++  std::wstring name;
++  std::wstring value;
++  if (!g_window || !stack.Pop(name) || !stack.Pop(value)) {
++    stack.Error("SetControlText expects an initialized plugin, control name, and text");
++    return;
++  }
++  g_window->SetControlText(WideToUtf8(name), WideToUtf8(value));
++  g_window->PumpMessages();
++  stack.Ok();
++}
++
++NSIS_ENTRY(GetControlText) {
++  Stack stack(string_size, stack_top);
++  std::wstring name;
++  if (!g_window || !stack.Pop(name)) {
++    stack.Error("GetControlText expects an initialized plugin and control name");
++    return;
++  }
++  stack.Push(Utf8ToWide(g_window->GetControlText(WideToUtf8(name))));
++}
++
++NSIS_ENTRY(GetCheckState) {
++  Stack stack(string_size, stack_top);
++  std::wstring name;
++  if (!g_window || !stack.Pop(name)) {
++    stack.Error("GetCheckState expects an initialized plugin and control name");
++    return;
++  }
++  bool checked = false;
++  if (!g_window->IsControlChecked(WideToUtf8(name), checked)) {
++    stack.Error("control is not a checkbox");
++    return;
++  }
++  stack.Push(checked ? L"1" : L"0");
++}
++
+ NSIS_ENTRY(SetPerUserInstallDirectory) {
+   Stack stack(string_size, stack_top);
+   std::wstring install_directory;
+@@ -510,6 +549,10 @@ NSIS_ENTRY(PollEvent) {
+       g_window->ResetEvent();
+       stack.Push(L"browse");
+       break;
++    case nsis_dui::WindowEvent::browse_data:
++      g_window->ResetEvent();
++      stack.Push(L"browse-data");
++      break;
+     case nsis_dui::WindowEvent::browse_current:
+       g_window->ResetEvent();
+       stack.Push(L"browse-current");
+@@ -558,6 +601,10 @@ NSIS_ENTRY(WaitForEvent) {
+       g_window->ResetEvent();
+       stack.Push(L"browse");
+       break;
++    case nsis_dui::WindowEvent::browse_data:
++      g_window->ResetEvent();
++      stack.Push(L"browse-data");
++      break;
+     case nsis_dui::WindowEvent::browse_current:
+       g_window->ResetEvent();
+       stack.Push(L"browse-current");
+diff --git a/src/renderer.cpp b/src/renderer.cpp
+index 48d051f..0196854 100644
+--- a/src/renderer.cpp
++++ b/src/renderer.cpp
+@@ -38,6 +38,25 @@ namespace {
+   return result;
+ }
+ 
++[[nodiscard]] std::string WideToUtf8(const std::wstring& value) {
++  if (value.empty()) {
++    return {};
++  }
++  const int length = WideCharToMultiByte(
++      CP_UTF8, WC_ERR_INVALID_CHARS, value.data(),
++      static_cast<int>(value.size()), nullptr, 0, nullptr, nullptr);
++  if (length <= 0) {
++    throw std::runtime_error("cannot convert theme asset path to UTF-8");
++  }
++  std::string result(static_cast<std::size_t>(length), '\0');
++  if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, value.data(),
++                          static_cast<int>(value.size()), result.data(),
++                          length, nullptr, nullptr) != length) {
++    throw std::runtime_error("cannot convert theme asset path to UTF-8");
++  }
++  return result;
++}
++
+ [[nodiscard]] std::string XmlEscape(const std::string& value) {
+   std::string result;
+   result.reserve(value.size());
+@@ -112,6 +131,14 @@ void ReplaceAll(std::string& value,
+   values.emplace("runtime.version", state.version);
+   values.emplace("runtime.status", state.status);
+   values.emplace("runtime.installDirectory", state.install_directory);
++  values.emplace("runtime.appIconPath",
++                 WideToUtf8((package.root / "assets" / "orangehub-icon.png")
++                                .wstring()));
++  values.emplace("runtime.heroImagePath",
++                 WideToUtf8((package.root / "assets" /
++                             "orangehub-installer-hero.bmp")
++                                .wstring()));
++  values.emplace("runtime.dataDirectory", state.data_directory);
+   values.emplace("runtime.perUserInstallDirectory",
+                  state.per_user_install_directory);
+   values.emplace("runtime.perMachineInstallDirectory",
+diff --git a/src/window.cpp b/src/window.cpp
+index 93c2ca2..9d8b0f2 100644
+--- a/src/window.cpp
++++ b/src/window.cpp
+@@ -34,6 +34,25 @@ namespace {
+   return result;
+ }
+ 
++[[nodiscard]] std::string WideToUtf8(const std::wstring& value) noexcept {
++  if (value.empty()) {
++    return {};
++  }
++  const int length = WideCharToMultiByte(
++      CP_UTF8, WC_ERR_INVALID_CHARS, value.data(),
++      static_cast<int>(value.size()), nullptr, 0, nullptr, nullptr);
++  if (length <= 0) {
++    return {};
++  }
++  std::string result(static_cast<std::size_t>(length), '\0');
++  if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, value.data(),
++                          static_cast<int>(value.size()), result.data(),
++                          length, nullptr, nullptr) != length) {
++    return {};
++  }
++  return result;
++}
++
+ [[nodiscard]] HINSTANCE CurrentModule() noexcept {
+   HMODULE module = nullptr;
+   const auto address = reinterpret_cast<LPCWSTR>(&CurrentModule);
+@@ -783,6 +802,126 @@ class SuccessMarkControl final : public DuiLib::CControlUI {
+   DWORD ink_ = 0xFF151918;
+ };
+ 
++class AppImageControl final : public DuiLib::CControlUI {
++ public:
++  [[nodiscard]] LPCTSTR GetClass() const override {
++    return L"AppImageUI";
++  }
++
++  void SetAttribute(LPCTSTR name, LPCTSTR value) override {
++    if (_wcsicmp(name, L"source") == 0 && value != nullptr) {
++      image_.reset(Gdiplus::Image::FromFile(value, TRUE));
++    } else {
++      CControlUI::SetAttribute(name, value);
++    }
++  }
++
++  bool DoPaint(HDC dc,
++               const RECT& paint,
++               DuiLib::CControlUI* stop_control) override {
++    if (!CControlUI::DoPaint(dc, paint, stop_control)) {
++      return false;
++    }
++    if (!image_ || image_->GetLastStatus() != Gdiplus::Ok) {
++      return true;
++    }
++
++    const RECT bounds = GetPos();
++    const Gdiplus::REAL width =
++        static_cast<Gdiplus::REAL>(bounds.right - bounds.left);
++    const Gdiplus::REAL height =
++        static_cast<Gdiplus::REAL>(bounds.bottom - bounds.top);
++    const Gdiplus::REAL scale = (std::min)(
++        width / static_cast<Gdiplus::REAL>(image_->GetWidth()),
++        height / static_cast<Gdiplus::REAL>(image_->GetHeight()));
++    const Gdiplus::REAL draw_width = image_->GetWidth() * scale;
++    const Gdiplus::REAL draw_height = image_->GetHeight() * scale;
++    const Gdiplus::REAL left = bounds.left + (width - draw_width) / 2.0F;
++    const Gdiplus::REAL top = bounds.top + (height - draw_height) / 2.0F;
++
++    Gdiplus::Graphics graphics(dc);
++    graphics.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
++    graphics.SetCompositingQuality(Gdiplus::CompositingQualityHighQuality);
++    graphics.DrawImage(image_.get(), left, top, draw_width, draw_height);
++    return true;
++  }
++
++ private:
++  std::unique_ptr<Gdiplus::Image> image_;
++};
++
++class StyledCheckBoxControl final : public DuiLib::CCheckBoxUI {
++ public:
++  [[nodiscard]] LPCTSTR GetClass() const override {
++    return L"StyledCheckBoxUI";
++  }
++
++  void SetAttribute(LPCTSTR name, LPCTSTR value) override {
++    if (_wcsicmp(name, L"checkcolor") == 0) {
++      check_color_ = ParseArgb(value, check_color_);
++    } else if (_wcsicmp(name, L"uncheckedbordercolor") == 0) {
++      unchecked_border_color_ = ParseArgb(value, unchecked_border_color_);
++    } else {
++      DuiLib::CCheckBoxUI::SetAttribute(name, value);
++    }
++  }
++
++  bool DoPaint(HDC dc,
++               const RECT& paint,
++               DuiLib::CControlUI* stop_control) override {
++    if (!DuiLib::CCheckBoxUI::DoPaint(dc, paint, stop_control)) {
++      return false;
++    }
++
++    const RECT bounds = GetPos();
++    const UINT dpi = m_pManager == nullptr
++                         ? 96
++                         : m_pManager->GetDPIObj()->GetScale();
++    const Gdiplus::REAL size = static_cast<Gdiplus::REAL>(MulDiv(18, dpi, 96));
++    const Gdiplus::REAL left = static_cast<Gdiplus::REAL>(bounds.left + MulDiv(1, dpi, 96));
++    const Gdiplus::REAL top = static_cast<Gdiplus::REAL>(bounds.top) +
++                              (bounds.bottom - bounds.top - size) / 2.0F;
++    const Gdiplus::REAL radius = size * 0.22F;
++
++    Gdiplus::Graphics graphics(dc);
++    graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
++    Gdiplus::GraphicsPath box;
++    box.AddArc(left, top, radius * 2.0F, radius * 2.0F, 180.0F, 90.0F);
++    box.AddArc(left + size - radius * 2.0F, top, radius * 2.0F,
++               radius * 2.0F, 270.0F, 90.0F);
++    box.AddArc(left + size - radius * 2.0F, top + size - radius * 2.0F,
++               radius * 2.0F, radius * 2.0F, 0.0F, 90.0F);
++    box.AddArc(left, top + size - radius * 2.0F, radius * 2.0F,
++               radius * 2.0F, 90.0F, 90.0F);
++    box.CloseFigure();
++
++    const bool checked = GetCheck();
++    Gdiplus::SolidBrush fill{Gdiplus::Color(checked ? check_color_ : 0xFFFFFFFF)};
++    Gdiplus::Pen border(
++        Gdiplus::Color(checked ? check_color_ : unchecked_border_color_),
++        static_cast<Gdiplus::REAL>(MulDiv(1, dpi, 96)));
++    graphics.FillPath(&fill, &box);
++    graphics.DrawPath(&border, &box);
++
++    if (checked) {
++      Gdiplus::Pen tick(Gdiplus::Color(0xFFFFFFFF),
++                        (std::max)(1.5F, size * 0.11F));
++      tick.SetStartCap(Gdiplus::LineCapRound);
++      tick.SetEndCap(Gdiplus::LineCapRound);
++      Gdiplus::PointF points[] = {
++          {left + size * 0.24F, top + size * 0.51F},
++          {left + size * 0.43F, top + size * 0.69F},
++          {left + size * 0.77F, top + size * 0.32F}};
++      graphics.DrawLines(&tick, points, static_cast<INT>(std::size(points)));
++    }
++    return true;
++  }
++
++ private:
++  DWORD check_color_ = 0xFF111111;
++  DWORD unchecked_border_color_ = 0xFF8A929B;
++};
++
+ }  // namespace
+ 
+ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+@@ -853,6 +992,10 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+   [[nodiscard]] bool SetPageName(const std::string& page_name) noexcept {
+     page_name_ = page_name;
+     suspended_page_name_.clear();
++    legal_return_page_.clear();
++    pending_legal_page_.clear();
++    legal_return_install_directory_.clear();
++    legal_return_data_directory_.clear();
+     event_ = WindowEvent::none;
+     return AttachPage();
+   }
+@@ -927,6 +1070,35 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+     }
+   }
+ 
++  void SetNamedControlText(const std::string& name,
++                           const std::string& value) noexcept {
++    const std::wstring wide_name = Utf8ToWide(name);
++    SetControlText(wide_name.c_str(), value);
++  }
++
++  [[nodiscard]] std::string ReadControlText(
++      const std::string& name) noexcept {
++    const std::wstring wide_name = Utf8ToWide(name);
++    DuiLib::CControlUI* control = m_pm.FindControl(wide_name.c_str());
++    if (control == nullptr) {
++      return {};
++    }
++    const DuiLib::CDuiString value = control->GetText();
++    return WideToUtf8(value.GetData());
++  }
++
++  [[nodiscard]] bool ReadControlChecked(const std::string& name,
++                                        bool& checked) noexcept {
++    const std::wstring wide_name = Utf8ToWide(name);
++    auto* control = dynamic_cast<DuiLib::CCheckBoxUI*>(
++        m_pm.FindControl(wide_name.c_str()));
++    if (control == nullptr) {
++      return false;
++    }
++    checked = control->GetCheck();
++    return true;
++  }
++
+   void ResetWindowEvent() noexcept {
+     event_ = WindowEvent::none;
+   }
+@@ -967,14 +1139,15 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+   }
+ 
+   void OpenLegalLink(const DuiLib::CDuiString& target) noexcept {
+-    const wchar_t* url = nullptr;
++    const char* page = nullptr;
+     if (_wcsicmp(target.GetData(), L"terms") == 0) {
+-      url = L"https://onekey.so/terms";
++      page = "legalTerms";
+     } else if (_wcsicmp(target.GetData(), L"privacy") == 0) {
+-      url = L"https://onekey.so/privacy";
++      page = "legalPrivacy";
+     }
+-    if (url != nullptr) {
+-      ShellExecuteW(m_hWnd, L"open", url, nullptr, nullptr, SW_SHOWNORMAL);
++    if (page != nullptr) {
++      pending_legal_page_ = page;
++      QueuePageTransition(kShowLegalPage);
+     }
+   }
+ 
+@@ -994,6 +1167,12 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+     if (_wcsicmp(class_name, L"BrandMark") == 0) {
+       return new BrandMarkControl();
+     }
++    if (_wcsicmp(class_name, L"AppImage") == 0) {
++      return new AppImageControl();
++    }
++    if (_wcsicmp(class_name, L"StyledCheckBox") == 0) {
++      return new StyledCheckBoxControl();
++    }
+     if (_wcsicmp(class_name, L"CaptionButton") == 0) {
+       return new CaptionButtonControl();
+     }
+@@ -1079,6 +1258,16 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+   LRESULT HandleMessage(UINT message,
+                         WPARAM wparam,
+                         LPARAM lparam) override {
++    if (message == kShowLegalPage) {
++      page_transition_pending_ = false;
++      ShowLegalPage(std::exchange(pending_legal_page_, {}));
++      return 0;
++    }
++    if (message == kRestoreLegalPage) {
++      page_transition_pending_ = false;
++      RestoreLegalPage();
++      return 0;
++    }
+     if (message == kShowExitConfirmation) {
+       page_transition_pending_ = false;
+       ShowExitConfirmation();
+@@ -1167,6 +1356,7 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+       QueuePageTransition(kRestoreSuspendedPage);
+     } else if (name == L"exit-confirm") {
+       event_ = WindowEvent::cancel;
++      Close(IDCANCEL);
+     } else if (name == L"primary") {
+       if (page_name_ == "welcome") {
+         event_ = selected_scope_ == InstallScope::all
+@@ -1186,6 +1376,8 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+       } else {
+         event_ = WindowEvent::browse;
+       }
++    } else if (name == L"browse-data") {
++      event_ = WindowEvent::browse_data;
+     } else if (name == L"more-options") {
+       advanced_options_visible_ = !advanced_options_visible_;
+       if (advanced_options_visible_) {
+@@ -1210,6 +1402,8 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+       ChangeFeature(1);
+     } else if (name == L"feature-action") {
+       OpenFeatureAction();
++    } else if (name == L"legal-back") {
++      QueuePageTransition(kRestoreLegalPage);
+     }
+   }
+ 
+@@ -1223,6 +1417,8 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+ 
+   static constexpr UINT kShowExitConfirmation = WM_APP + 0x4F4B;
+   static constexpr UINT kRestoreSuspendedPage = WM_APP + 0x4F4C;
++  static constexpr UINT kShowLegalPage = WM_APP + 0x4F4D;
++  static constexpr UINT kRestoreLegalPage = WM_APP + 0x4F4E;
+ 
+   [[nodiscard]] bool IsOperationPage() const noexcept {
+     return page_name_ == "installing" || page_name_ == "uninstalling";
+@@ -1262,6 +1458,46 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+     (void)AttachPage();
+   }
+ 
++  void ShowLegalPage(std::string page_name) noexcept {
++    if (page_name.empty()) {
++      return;
++    }
++    if (page_name_ == "welcome") {
++      if (!ReadControlChecked("create-shortcut",
++                              legal_return_create_shortcut_)) {
++        legal_return_create_shortcut_ = true;
++      }
++      legal_return_install_directory_ = ReadControlText("install-directory");
++      legal_return_data_directory_ = ReadControlText("data-directory");
++    }
++    legal_return_page_ = page_name_;
++    page_name_ = std::move(page_name);
++    event_ = WindowEvent::none;
++    if (!AttachPage()) {
++      page_name_ = std::exchange(legal_return_page_, {});
++      (void)AttachPage();
++    }
++  }
++
++  void RestoreLegalPage() noexcept {
++    if (legal_return_page_.empty()) {
++      return;
++    }
++    page_name_ = std::exchange(legal_return_page_, {});
++    event_ = WindowEvent::none;
++    if (!AttachPage() || page_name_ != "welcome") {
++      return;
++    }
++    SetControlText(L"install-directory", legal_return_install_directory_);
++    SetControlText(L"data-directory", legal_return_data_directory_);
++    if (auto* shortcut = dynamic_cast<DuiLib::CCheckBoxUI*>(
++            m_pm.FindControl(L"create-shortcut"));
++        shortcut != nullptr) {
++      shortcut->SetCheck(legal_return_create_shortcut_);
++    }
++    UpdateWelcomeControls();
++  }
++
+   [[nodiscard]] bool AttachPage() noexcept {
+     const RenderResult rendered = RenderPage(package_, page_name_, state_);
+     if (!rendered) {
+@@ -1395,6 +1631,10 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+   ThemePackage package_;
+   std::string page_name_;
+   std::string suspended_page_name_;
++  std::string legal_return_page_;
++  std::string pending_legal_page_;
++  std::string legal_return_install_directory_;
++  std::string legal_return_data_directory_;
+   ViewState state_;
+   std::wstring rendered_xml_;
+   std::string error_;
+@@ -1402,6 +1642,7 @@ class InstallerWindow::Impl final : public DuiLib::WindowImplBase {
+   InstallScope selected_scope_ = InstallScope::current;
+   bool advanced_options_visible_ = false;
+   bool advanced_options_ever_opened_ = false;
++  bool legal_return_create_shortcut_ = true;
+   bool page_transition_pending_ = false;
+   bool ready_ = false;
+ };
+@@ -1542,6 +1783,23 @@ void InstallerWindow::SetPerMachineInstallDirectory(
+   }
+ }
+ 
++void InstallerWindow::SetControlText(const std::string& name,
++                                     const std::string& value) noexcept {
++  if (impl_) {
++    impl_->SetNamedControlText(name, value);
++  }
++}
++
++std::string InstallerWindow::GetControlText(
++    const std::string& name) const noexcept {
++  return impl_ ? impl_->ReadControlText(name) : std::string{};
++}
++
++bool InstallerWindow::IsControlChecked(const std::string& name,
++                                       bool& checked) const noexcept {
++  return impl_ && impl_->ReadControlChecked(name, checked);
++}
++
+ void InstallerWindow::ResetEvent() noexcept {
+   if (impl_) {
+     impl_->ResetWindowEvent();

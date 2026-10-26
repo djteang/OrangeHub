@@ -19,6 +19,7 @@ const mobileMenuOpen = ref(false);
 const activeSection = ref("features");
 const isLight = ref(false);
 const contactOpen = ref(false);
+const isHeaderCompact = ref(false);
 const navItems = [
   { id: "features", label: "功能" },
   { id: "download", label: "下载" },
@@ -36,6 +37,7 @@ function toggleTheme() {
   document.documentElement.dataset.productTheme = isLight.value ? "light" : "dark";
 }
 function handleScroll() {
+  isHeaderCompact.value = window.scrollY > 32;
   const offset = window.scrollY + 180;
   const current = [...navItems].reverse().find(({ id }) => {
     const section = document.getElementById(id);
@@ -43,13 +45,16 @@ function handleScroll() {
   });
   if (current) activeSection.value = current.id;
 }
-onMounted(() => window.addEventListener("scroll", handleScroll, { passive: true }));
+onMounted(() => {
+  handleScroll();
+  window.addEventListener("scroll", handleScroll, { passive: true });
+});
 onUnmounted(() => window.removeEventListener("scroll", handleScroll));
 </script>
 
 <template>
   <div class="product-site" @click="contactOpen = false">
-    <header class="site-header">
+    <header class="site-header" :class="{ 'is-scrolled': isHeaderCompact }">
       <a class="brand" href="#top" aria-label="OrangeHub 首页" @click="mobileMenuOpen = false"><span class="brand-mark"><img src="/orangehub-icon.png" alt="" /></span><span class="brand-name">Orange<span>Hub</span></span></a>
       <nav class="desktop-nav" aria-label="主导航"><button v-for="item in navItems" :key="item.id" type="button" :class="{ active: activeSection === item.id }" @click="scrollToSection(item.id)">{{ item.label }}</button></nav>
       <div class="header-actions">

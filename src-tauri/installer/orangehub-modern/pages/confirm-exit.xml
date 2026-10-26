@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="{{window.width}},{{window.height}}" caption="0,0,0,60" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
+  <Font id="0" name="{{font.family}}" size="{{font.bodySize}}" default="true" />
+  <Font id="1" name="Microsoft YaHei UI" size="26" bold="true" />
+  <Container name="page-root">
+    <VerticalLayout float="0,0,1,1" bkcolor="{{color.canvas}}">
+      <HorizontalLayout height="60" inset="24,12,22,12" childvalign="vcenter"><AppImage source="{{runtime.appIconPath}}" width="40" height="40" /><Label text="OrangeHub" textcolor="{{color.textPrimary}}" width="150" padding="10,0,0,0" /><Control /></HorizontalLayout>
+      <VerticalLayout inset="90,170,90,100">
+        <Control />
+        <Label text="{{string.confirmExit.title}}" font="1" textcolor="{{color.textPrimary}}" height="44" align="center" />
+        <Label text="{{string.confirmExit.description}}" textcolor="{{color.textSecondary}}" height="60" align="center" />
+        <HorizontalLayout height="58"><Button name="exit-stay" text="{{string.confirmExit.stay}}" textcolor="{{color.textPrimary}}" bkcolor="{{color.surfaceMuted}}" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" borderround="10,10" /><Control width="14" /><Button name="exit-confirm" text="{{string.confirmExit.confirm}}" textcolor="{{color.textOnDark}}" bkcolor="#FF111111" hotbkcolor="#FF292929" pushedbkcolor="#FF000000" borderround="10,10" /></HorizontalLayout>
+        <Control />
+      </VerticalLayout>
+    </VerticalLayout>
+  </Container>
+</Window>

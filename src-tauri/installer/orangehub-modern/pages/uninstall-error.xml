@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="{{window.width}},{{window.height}}" caption="0,0,0,60" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
+  <Font id="0" name="{{font.family}}" size="{{font.bodySize}}" default="true" />
+  <Font id="1" name="Microsoft YaHei UI" size="30" bold="true" />
+  <Container name="page-root">
+    <VerticalLayout float="0,0,1,1" bkcolor="{{color.canvas}}">
+      <HorizontalLayout height="60" inset="24,12,22,12" childvalign="vcenter"><AppImage source="{{runtime.appIconPath}}" width="40" height="40" /><Label text="OrangeHub" font="1" textcolor="{{color.textPrimary}}" width="150" padding="10,0,0,0" /><Control /><CaptionButton name="closebtn" kind="close" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.danger}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="36" height="34" borderround="8,8" /></HorizontalLayout>
+      <VerticalLayout inset="64,100,64,72">
+        <Control />
+        <HorizontalLayout height="520"><Control /><AppImage source="{{runtime.heroImagePath}}" width="330" height="508" /><Control /></HorizontalLayout>
+        <Label text="{{string.uninstallError.title}}" font="1" textcolor="{{color.textPrimary}}" height="48" align="center" />
+        <Label text="{{string.uninstallError.subtitle}}" textcolor="{{color.textSecondary}}" height="42" align="center" />
+        <HorizontalLayout height="58"><Control /><Button name="primary" text="{{string.uninstallError.retry}}" textcolor="{{color.textOnDark}}" bkcolor="#FF111111" hotbkcolor="#FF292929" pushedbkcolor="#FF000000" width="420" height="58" borderround="12,12" /><Control /></HorizontalLayout>
+        <Control />
+      </VerticalLayout>
+    </VerticalLayout>
+  </Container>
+</Window>

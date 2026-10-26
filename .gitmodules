@@ -1,0 +1,3 @@
+[submodule "src-tauri/installer/nsis-duilib-ui"]
+	path = src-tauri/installer/nsis-duilib-ui
+	url = https://github.com/huhuanming/nsis-duilib-ui.git

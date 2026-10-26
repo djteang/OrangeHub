@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "orangehub-modern",
+  "name": "OrangeHub Modern",
+  "minEngineVersion": "0.1.0",
+  "window": {
+    "width": 600,
+    "height": 900,
+    "radius": 16
+  },
+  "pages": {
+    "welcome": "pages/welcome.xml",
+    "legalTerms": "pages/legal-terms.xml",
+    "legalPrivacy": "pages/legal-privacy.xml",
+    "installing": "pages/installing.xml",
+    "finish": "pages/finish.xml",
+    "confirmExit": "pages/confirm-exit.xml",
+    "uninstallWelcome": "pages/uninstall-welcome.xml",
+    "uninstalling": "pages/uninstalling.xml",
+    "uninstallFinish": "pages/uninstall-finish.xml",
+    "uninstallError": "pages/uninstall-error.xml",
+    "error": "pages/error.xml"
+  },
+  "tokens": "tokens.json",
+  "locales": {
+    "en-US": "locales/en-US.json",
+    "zh-CN": "locales/zh-CN.json"
+  }
+}
