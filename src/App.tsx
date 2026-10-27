@@ -52,6 +52,7 @@ import {
   FolderUp,
   HardDrive,
   History,
+  Info,
   KeyRound,
   LayoutGrid,
   Link2,
@@ -226,7 +227,7 @@ const appVersion = packageInfo.version;
 
 type Page = "overview" | "connections" | "snippets" | "history" | "aiHistory" | "settings";
 type Theme = "light" | "dark";
-type Toast = { kind: "success" | "error"; message: string };
+type Toast = { id: number; kind: "success" | "error" | "info"; message: string };
 type AiChatMessage = { role: "user" | "assistant" | "execution"; content: string; complete?: boolean; executionStatus?: "success" | "failed"; queryResult?: QueryResult };
 type AiConversation = {
   id: string;
@@ -1354,7 +1355,9 @@ export default function App() {
   const searchDialogInputRef = useRef<HTMLInputElement | null>(null);
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [reachable, setReachable] = useState<Record<string, number>>({});
-  const [toast, setToast] = useState<Toast | null>(null);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastSequenceRef = useRef(0);
+  const toastTimersRef = useRef(new Map<number, number>());
   const [updateBusy, setUpdateBusy] = useState(false);
   const updateBusyRef = useRef(false);
   const [loading, setLoading] = useState(true);
@@ -1510,11 +1513,10 @@ export default function App() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 3400);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
+  useEffect(() => () => {
+    toastTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    toastTimersRef.current.clear();
+  }, []);
 
   const activeConnection =
     connections.find((connection) => connection.id === activeId) || null;
@@ -1552,8 +1554,21 @@ export default function App() {
     void setTrayVaultState(nativeLocked).catch(() => undefined);
   }, [nativeLocked]);
 
+  function dismissToast(id: number) {
+    const timer = toastTimersRef.current.get(id);
+    if (timer !== undefined) window.clearTimeout(timer);
+    toastTimersRef.current.delete(id);
+    setToasts((current) => current.filter((toastItem) => toastItem.id !== id));
+  }
+
   function notify(kind: Toast["kind"], message: string) {
-    setToast({ kind, message });
+    const id = ++toastSequenceRef.current;
+    setToasts((current) => [...current, { id, kind, message }].slice(-5));
+    const timer = window.setTimeout(() => {
+      toastTimersRef.current.delete(id);
+      setToasts((current) => current.filter((toastItem) => toastItem.id !== id));
+    }, 4200);
+    toastTimersRef.current.set(id, timer);
   }
 
   async function checkForUpdates() {
@@ -2595,20 +2610,32 @@ export default function App() {
           onConfirm={() => resolveActionDialog(true)}
         />
       )}
-      {toast && (
-        <div className={`toast ${toast.kind}`}>
-          <span className="toast-icon">
-            {toast.kind === "success" ? (
-              <Check size={15} />
-            ) : (
-              <AlertCircle size={15} />
-            )}
-          </span>
-          {toast.message}
-          <button onClick={() => setToast(null)}>
-            <X size={14} />
-          </button>
-        </div>
+      {toasts.length > 0 && createPortal(
+        <div className="toast-viewport" role="region" aria-label="消息通知" aria-live="polite">
+          {toasts.map((toastItem, index) => {
+            const depth = toasts.length - index - 1;
+            return (
+              <div
+                key={toastItem.id}
+                className={`toast-item ${toastItem.kind}`}
+                role={toastItem.kind === "error" ? "alert" : "status"}
+                style={{
+                  zIndex: index + 1,
+                  transform: `translateY(${depth * 7}px) scale(${1 - depth * 0.025})`,
+                }}
+              >
+                <span className="toast-icon">
+                  {toastItem.kind === "success" ? <Check size={15} /> : toastItem.kind === "error" ? <AlertCircle size={15} /> : <Info size={15} />}
+                </span>
+                <span className="toast-message">{toastItem.message}</span>
+                <button type="button" aria-label="关闭消息提示" title="关闭" onClick={() => dismissToast(toastItem.id)}>
+                  <X size={15} />
+                </button>
+              </div>
+            );
+          })}
+        </div>,
+        document.body,
       )}
       {searchOpen && (
         <SearchPalette
@@ -2775,6 +2802,7 @@ function WindowTitlebar({
       <div className="custom-titlebar-brand">
         <img className="custom-titlebar-mark" src={orangeHubIcon} alt="OrangeHub" />
         <span className="custom-titlebar-name">OrangeHub</span>
+        <span className="custom-titlebar-version">v{appVersion}</span>
       </div>
       <label className="search-box custom-titlebar-search">
         <Search size={14} />
@@ -6941,7 +6969,7 @@ function SqlSnippetDialog({
             </label>
           </div>
           <footer className="dialog-footer">
-            <div className="connection-test-result" aria-hidden="true" />
+            <div className="dialog-footer-spacer" aria-hidden="true" />
             <button type="button" className="secondary-button" onClick={onClose}>取消</button>
             <button type="submit" className="primary-button"><Check size={14} />保存收藏</button>
           </footer>
@@ -7155,17 +7183,12 @@ function ConnectionDialog({
 }) {
   const [step, setStep] = useState(mode === "edit" ? 1 : 0);
   const [testingConnection, setTestingConnection] = useState(false);
-  const [connectionTest, setConnectionTest] = useState<{
-    kind: "success" | "error" | "info";
-    message: string;
-  } | null>(null);
   const typeOption = protocolOptions.find(
     (option) =>
       option.kind === draft.kind &&
       (!option.driver || option.driver === draft.sqlDriver),
   );
   const update = (changes: Partial<Connection>) => {
-    setConnectionTest(null);
     setDraft({ ...draft, ...changes });
   };
   const sshConnection = draft.kind === "ssh" || draft.kind === "sftp";
@@ -7173,14 +7196,13 @@ function ConnectionDialog({
   const dockerConnection = draft.kind === "docker";
   const selectProtocol = (option: (typeof protocolOptions)[number]) => {
     const next = initialConnection(option.kind, option.driver);
-    setConnectionTest(null);
     setDraft({ ...next, id: draft.id, name: draft.name || next.name });
     setStep(1);
   };
   const handleTestConnection = async () => {
     if (testingConnection) return;
     setTestingConnection(true);
-    setConnectionTest({ kind: "info", message: "正在测试连接…" });
+    notify("info", "正在测试连接…");
     try {
       let response = await testConnectionConfig(draft, mode === "edit");
       if (response.needsTrust && response.keyType && response.fingerprint) {
@@ -7190,18 +7212,15 @@ function ConnectionDialog({
           "信任并继续测试",
         );
         if (!accepted) {
-          setConnectionTest({ kind: "info", message: "未确认主机指纹，连接测试已取消。" });
+          notify("info", "未确认主机指纹，连接测试已取消。");
           return;
         }
         await trustSshHostConfig(draft, response.keyType, response.fingerprint);
         response = await testConnectionConfig(draft, mode === "edit");
       }
-      setConnectionTest({
-        kind: "success",
-        message: `${response.detail} · ${response.latencyMs} ms`,
-      });
+      notify("success", `${response.detail} · ${response.latencyMs} ms`);
     } catch (error) {
-      setConnectionTest({ kind: "error", message: String(error) });
+      notify("error", String(error));
     } finally {
       setTestingConnection(false);
     }
@@ -7532,10 +7551,7 @@ function ConnectionDialog({
               <span>凭据保存在本机加密保险库中。</span>
             </div>
             <footer className="dialog-footer">
-              <div className={`connection-test-result ${connectionTest?.kind || ""}`} aria-live="polite">
-                {testingConnection ? <span className="mini-spinner" /> : connectionTest?.kind === "success" ? <Check size={13} /> : connectionTest?.kind === "error" ? <AlertCircle size={13} /> : null}
-                {connectionTest?.message}
-              </div>
+              <div className="dialog-footer-spacer" />
               <button
                 type="button"
                 className="secondary-button test-connection-button"

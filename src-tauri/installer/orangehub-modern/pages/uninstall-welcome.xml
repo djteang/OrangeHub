@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Window size="{{window.width}},{{window.height}}" caption="0,0,0,60" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
+<Window size="{{window.width}},{{window.height}}" caption="0,0,0,47" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
   <Font id="0" name="{{font.family}}" size="{{font.bodySize}}" default="true" />
-  <Font id="1" name="Microsoft YaHei UI" size="30" bold="true" />
-  <Font id="2" name="Microsoft YaHei UI" size="17" bold="true" />
+  <Font id="1" name="Microsoft YaHei UI" size="24" bold="true" />
+  <Font id="2" name="Microsoft YaHei UI" size="13" bold="true" />
   <Container name="page-root">
     <VerticalLayout float="0,0,1,1" bkcolor="{{color.canvas}}">
-      <HorizontalLayout height="60" inset="24,12,22,12" childvalign="vcenter">
-        <AppImage source="{{runtime.appIconPath}}" width="40" height="40" />
-        <Label text="OrangeHub" font="2" textcolor="{{color.textPrimary}}" width="130" padding="10,0,0,0" />
+      <HorizontalLayout height="47" inset="19,9,17,9" childvalign="vcenter">
+        <AppImage source="{{runtime.appIconPath}}" width="32" height="32" />
+        <Label text="OrangeHub" font="2" textcolor="{{color.textPrimary}}" width="103" padding="8,0,0,0" />
         <Control />
-        <CaptionButton name="minbtn" kind="minimize" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.textPrimary}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="36" height="34" borderround="8,8" />
-        <Control width="6" />
-        <CaptionButton name="closebtn" kind="close" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.danger}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="36" height="34" borderround="8,8" />
+        <CaptionButton name="minbtn" kind="minimize" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.textPrimary}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="28" height="27" borderround="6,6" />
+        <Control width="5" />
+        <CaptionButton name="closebtn" kind="close" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.danger}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="28" height="27" borderround="6,6" />
       </HorizontalLayout>
-      <VerticalLayout inset="56,55,56,50">
+      <VerticalLayout inset="44,43,44,39">
         <Control />
-        <HorizontalLayout height="450"><Control /><AppImage source="{{runtime.heroImagePath}}" width="312" height="450" /><Control /></HorizontalLayout>
-        <Control height="18" />
-        <Label text="{{string.uninstall.confirmTitle}}" font="1" textcolor="{{color.textPrimary}}" height="46" align="center" />
-        <Label text="{{string.uninstall.confirmSubtitle}}" textcolor="{{color.textSecondary}}" height="38" align="center" />
-        <StyledCheckBox name="delete-data" text="{{string.uninstall.deleteData}}" textpadding="28,0,0,0" align="left" textcolor="{{color.textPrimary}}" selectedtextcolor="{{color.textPrimary}}" height="46" />
-        <Control height="16" />
-        <HorizontalLayout height="58">
-          <Button name="cancel" text="{{string.uninstall.cancel}}" textcolor="{{color.textPrimary}}" bkcolor="{{color.surfaceMuted}}" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="225" height="58" borderround="10,10" font="2" />
-          <Control width="14" />
-          <Button name="primary" text="{{string.uninstall.confirm}}" textcolor="{{color.textOnDark}}" bkcolor="#FF111111" hotbkcolor="#FF292929" pushedbkcolor="#FF000000" width="225" height="58" borderround="10,10" font="2" align="center" />
+        <HorizontalLayout height="355"><Control /><AppImage source="{{runtime.heroImagePath}}" width="246" height="355" /><Control /></HorizontalLayout>
+        <Control height="14" />
+        <Label text="{{string.uninstall.confirmTitle}}" font="1" textcolor="{{color.textPrimary}}" height="36" align="center" />
+        <Label text="{{string.uninstall.confirmSubtitle}}" textcolor="{{color.textSecondary}}" height="30" align="center" />
+        <StyledCheckBox name="delete-data" text="{{string.uninstall.deleteData}}" textpadding="22,0,0,0" align="left" textcolor="{{color.textPrimary}}" selectedtextcolor="{{color.textPrimary}}" height="36" />
+        <Control height="13" />
+        <HorizontalLayout height="46">
+          <Button name="cancel" text="{{string.uninstall.cancel}}" textcolor="{{color.textPrimary}}" bkcolor="{{color.surfaceMuted}}" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="178" height="46" borderround="8,8" font="2" />
+          <Control width="11" />
+          <Button name="primary" text="{{string.uninstall.confirm}}" textcolor="{{color.textOnDark}}" bkcolor="#FF111111" hotbkcolor="#FF292929" pushedbkcolor="#FF000000" width="178" height="46" borderround="8,8" font="2" align="center" />
         </HorizontalLayout>
         <Control />
       </VerticalLayout>

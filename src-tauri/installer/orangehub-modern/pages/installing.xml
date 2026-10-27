@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Window size="{{window.width}},{{window.height}}" caption="0,0,0,60" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
+<Window size="{{window.width}},{{window.height}}" caption="0,0,0,47" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
   <Font id="0" name="{{font.family}}" size="{{font.bodySize}}" default="true" />
-  <Font id="1" name="Microsoft YaHei UI" size="30" bold="true" />
-  <Font id="2" name="Microsoft YaHei UI" size="17" bold="true" />
+  <Font id="1" name="Microsoft YaHei UI" size="24" bold="true" />
+  <Font id="2" name="Microsoft YaHei UI" size="13" bold="true" />
   <Container name="page-root">
     <VerticalLayout float="0,0,1,1" bkcolor="{{color.canvas}}">
-      <HorizontalLayout height="60" inset="24,12,22,12" childvalign="vcenter">
-        <AppImage source="{{runtime.appIconPath}}" width="40" height="40" />
-        <Label text="OrangeHub" font="2" textcolor="{{color.textPrimary}}" width="130" padding="10,0,0,0" />
+      <HorizontalLayout height="47" inset="19,9,17,9" childvalign="vcenter">
+        <AppImage source="{{runtime.appIconPath}}" width="32" height="32" />
+        <Label text="OrangeHub" font="2" textcolor="{{color.textPrimary}}" width="103" padding="8,0,0,0" />
         <Control />
-        <CaptionButton name="minbtn" kind="minimize" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.textPrimary}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="36" height="34" borderround="8,8" />
-        <Control width="6" />
-        <CaptionButton name="closebtn" kind="close" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.danger}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="36" height="34" borderround="8,8" />
+        <CaptionButton name="minbtn" kind="minimize" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.textPrimary}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="28" height="27" borderround="6,6" />
+        <Control width="5" />
+        <CaptionButton name="closebtn" kind="close" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.danger}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="28" height="27" borderround="6,6" />
       </HorizontalLayout>
-      <VerticalLayout inset="96,40,96,44">
+      <VerticalLayout inset="76,32,76,35">
         <Control />
-        <HorizontalLayout height="440"><Control /><AppImage source="{{runtime.heroImagePath}}" width="330" height="440" /><Control /></HorizontalLayout>
-        <Control height="8" />
-        <Label text="{{string.install.title}}" font="1" textcolor="{{color.textPrimary}}" height="46" align="center" />
-        <Label name="status" text="{{runtime.status}}" textcolor="{{color.textSecondary}}" height="34" align="center" />
-        <Control height="30" />
-        <GlassPanel height="146" bkcolor="{{color.surfaceMuted}}" bordercolor="{{color.border}}" bordersize="1" borderround="10,10" inset="22,18,22,10">
-          <HorizontalLayout height="28">
+        <HorizontalLayout height="347"><Control /><AppImage source="{{runtime.heroImagePath}}" width="260" height="347" /><Control /></HorizontalLayout>
+        <Control height="6" />
+        <Label text="{{string.install.title}}" font="1" textcolor="{{color.textPrimary}}" height="36" align="center" />
+        <Label name="status" text="{{runtime.status}}" textcolor="{{color.textSecondary}}" height="27" align="center" />
+        <Control height="24" />
+        <GlassPanel height="115" bkcolor="{{color.surfaceMuted}}" bordercolor="{{color.border}}" bordersize="1" borderround="8,8" inset="17,14,17,8">
+          <HorizontalLayout height="22">
             <Label text="{{string.install.progressLabel}}" textcolor="{{color.textPrimary}}" />
-            <Label name="progress-value" text="{{runtime.progress}}%" font="2" textcolor="{{color.textPrimary}}" width="60" align="right" />
+            <Label name="progress-value" text="{{runtime.progress}}%" font="2" textcolor="{{color.textPrimary}}" width="47" align="right" />
           </HorizontalLayout>
-          <AnimatedProgress name="progress" height="24" value="{{runtime.progress}}" trackcolor="{{color.progressTrack}}" startcolor="{{color.progressStart}}" endcolor="#FF111111" />
-          <HorizontalLayout height="34">
+          <AnimatedProgress name="progress" height="19" value="{{runtime.progress}}" trackcolor="{{color.progressTrack}}" startcolor="{{color.progressStart}}" endcolor="#FF111111" />
+          <HorizontalLayout height="27">
             <Label text="{{string.install.safeHint}}" textcolor="{{color.textSecondary}}" />
-            <Button name="cancel" text="{{string.install.cancel}}" textcolor="{{color.textSecondary}}" hottextcolor="{{color.textPrimary}}" bkcolor="#00FFFFFF" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="70" height="30" borderround="7,7" />
+            <Button name="cancel" text="{{string.install.cancel}}" textcolor="{{color.textSecondary}}" hottextcolor="{{color.textPrimary}}" bkcolor="#00FFFFFF" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="55" height="24" borderround="6,6" />
           </HorizontalLayout>
         </GlassPanel>
         <Control />

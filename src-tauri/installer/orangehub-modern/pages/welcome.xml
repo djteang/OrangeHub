@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Window size="{{window.width}},{{window.height}}" caption="0,0,0,60" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
+<Window size="{{window.width}},{{window.height}}" caption="0,0,0,47" roundcorner="{{window.radius}},{{window.radius}}" gdiplustext="true">
   <Font id="0" name="{{font.family}}" size="{{font.bodySize}}" default="true" />
-  <Font id="1" name="Microsoft YaHei UI" size="30" bold="true" />
-  <Font id="2" name="Microsoft YaHei UI" size="17" bold="true" />
-  <Font id="3" name="Microsoft YaHei UI" size="14" />
+  <Font id="1" name="Microsoft YaHei UI" size="24" bold="true" />
+  <Font id="2" name="Microsoft YaHei UI" size="13" bold="true" />
+  <Font id="3" name="Microsoft YaHei UI" size="11" />
   <Container name="page-root">
     <VerticalLayout float="0,0,1,1" bkcolor="{{color.canvas}}">
-      <HorizontalLayout height="60" inset="24,12,22,12" childvalign="vcenter">
-        <AppImage source="{{runtime.appIconPath}}" width="40" height="40" />
-        <Label text="OrangeHub" font="2" textcolor="{{color.textPrimary}}" width="130" padding="10,0,0,0" />
+      <HorizontalLayout height="47" inset="19,9,17,9" childvalign="vcenter">
+        <AppImage source="{{runtime.appIconPath}}" width="32" height="32" />
+        <Label text="OrangeHub" font="2" textcolor="{{color.textPrimary}}" width="103" padding="8,0,0,0" />
         <Control />
-        <CaptionButton name="minbtn" kind="minimize" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.textPrimary}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="36" height="34" borderround="8,8" />
-        <Control width="6" />
-        <CaptionButton name="closebtn" kind="close" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.danger}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="36" height="34" borderround="8,8" />
+        <CaptionButton name="minbtn" kind="minimize" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.textPrimary}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="28" height="27" borderround="6,6" />
+        <Control width="5" />
+        <CaptionButton name="closebtn" kind="close" iconcolor="{{color.textSecondary}}" hoticoncolor="{{color.danger}}" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="28" height="27" borderround="6,6" />
       </HorizontalLayout>
-      <VerticalLayout inset="64,6,64,0">
-        <HorizontalLayout height="360"><Control /><AppImage source="{{runtime.heroImagePath}}" width="330" height="360" /><Control /></HorizontalLayout>
-        <Label text="{{string.welcome.title}}" font="1" textcolor="{{color.textPrimary}}" height="38" align="center" />
-        <Label text="{{string.welcome.subtitle}}" textcolor="{{color.textSecondary}}" height="32" align="center" />
-        <Control height="8" />
-        <HorizontalLayout height="52"><Control /><Button name="primary" text="{{string.welcome.start}}" textcolor="{{color.textOnDark}}" bkcolor="#FF111111" hotbkcolor="#FF292929" pushedbkcolor="#FF000000" width="420" height="52" borderround="12,12" font="2" /><Control /></HorizontalLayout>
-        <LegalNotice name="legal-links" text="{{string.welcome.terms}}" textcolor="{{color.textSecondary}}" hotlinkcolor="{{color.textPrimary}}" height="28" align="center" />
+      <VerticalLayout inset="50,5,50,0">
+        <HorizontalLayout height="284"><Control /><AppImage source="{{runtime.heroImagePath}}" width="260" height="284" /><Control /></HorizontalLayout>
+        <Label text="{{string.welcome.title}}" font="1" textcolor="{{color.textPrimary}}" height="30" align="center" />
+        <Label text="{{string.welcome.subtitle}}" textcolor="{{color.textSecondary}}" height="25" align="center" />
+        <Control height="6" />
+        <HorizontalLayout height="41"><Control /><Button name="primary" text="{{string.welcome.start}}" textcolor="{{color.textOnDark}}" bkcolor="#FF111111" hotbkcolor="#FF292929" pushedbkcolor="#FF000000" width="331" height="41" borderround="9,9" font="2" /><Control /></HorizontalLayout>
+        <LegalNotice name="legal-links" text="{{string.welcome.terms}}" textcolor="{{color.textSecondary}}" hotlinkcolor="{{color.textPrimary}}" height="22" align="center" />
         <Control />
       </VerticalLayout>
-      <VerticalLayout height="300" bkcolor="#FFF7F8FA" inset="32,22,32,16">
-        <Label text="{{string.welcome.pathLabel}}" textcolor="{{color.textSecondary}}" height="28" />
-        <HorizontalLayout height="48" bkcolor="{{color.surface}}" bordercolor="{{color.border}}" bordersize="1" borderround="8,8" inset="14,0,10,0" childvalign="vcenter">
+      <VerticalLayout height="237" bkcolor="#FFF7F8FA" inset="25,17,25,13">
+        <Label text="{{string.welcome.pathLabel}}" textcolor="{{color.textSecondary}}" height="22" />
+        <HorizontalLayout height="38" bkcolor="{{color.surface}}" bordercolor="{{color.border}}" bordersize="1" borderround="6,6" inset="11,0,8,0" childvalign="vcenter">
           <Label name="install-directory" text="{{runtime.installDirectory}}" textcolor="{{color.textPrimary}}" />
-          <Button name="browse" text="{{string.welcome.change}}" textcolor="{{color.textPrimary}}" hottextcolor="{{color.textPrimary}}" bkcolor="{{color.surfaceMuted}}" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="74" height="34" borderround="7,7" />
+          <Button name="browse" text="{{string.welcome.change}}" textcolor="{{color.textPrimary}}" hottextcolor="{{color.textPrimary}}" bkcolor="{{color.surfaceMuted}}" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="58" height="27" borderround="6,6" />
         </HorizontalLayout>
-        <StyledCheckBox name="create-shortcut" text="{{string.welcome.createShortcut}}" selected="true" textpadding="28,0,0,0" align="left" textcolor="{{color.textPrimary}}" selectedtextcolor="{{color.textPrimary}}" height="40" />
-        <HorizontalLayout height="40" childvalign="vcenter">
-          <Button name="more-options" text="{{string.welcome.moreOptions}}" textcolor="{{color.textSecondary}}" hottextcolor="{{color.textPrimary}}" bkcolor="#00FFFFFF" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="130" height="32" borderround="7,7" />
+        <StyledCheckBox name="create-shortcut" text="{{string.welcome.createShortcut}}" selected="true" textpadding="22,0,0,0" align="left" textcolor="{{color.textPrimary}}" selectedtextcolor="{{color.textPrimary}}" height="32" />
+        <HorizontalLayout height="32" childvalign="vcenter">
+          <Button name="more-options" text="{{string.welcome.moreOptions}}" textcolor="{{color.textSecondary}}" hottextcolor="{{color.textPrimary}}" bkcolor="#00FFFFFF" hotbkcolor="{{color.surfaceMuted}}" pushedbkcolor="{{color.surfaceStrong}}" width="103" height="25" borderround="6,6" />
           <Control />
         </HorizontalLayout>
-        <VerticalLayout name="advanced-options" visible="false" height="76">
-          <Label text="{{string.welcome.dataPathLabel}}" textcolor="{{color.textSecondary}}" height="24" />
-          <HorizontalLayout height="44" bkcolor="{{color.surface}}" bordercolor="{{color.border}}" bordersize="1" borderround="8,8" inset="12,0,8,0" childvalign="vcenter">
-            <Edit name="data-directory" text="{{runtime.dataDirectory}}" textcolor="{{color.textPrimary}}" bkcolor="{{color.surface}}" bordercolor="{{color.surface}}" padding="4,0,4,0" />
-            <Button name="browse-data" text="{{string.welcome.change}}" textcolor="{{color.textPrimary}}" hottextcolor="{{color.textPrimary}}" bkcolor="{{color.surfaceMuted}}" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="74" height="32" borderround="7,7" />
+        <VerticalLayout name="advanced-options" visible="false" height="60">
+          <Label text="{{string.welcome.dataPathLabel}}" textcolor="{{color.textSecondary}}" height="19" />
+          <HorizontalLayout height="35" bkcolor="{{color.surface}}" bordercolor="{{color.border}}" bordersize="1" borderround="6,6" inset="9,0,6,0" childvalign="vcenter">
+            <Edit name="data-directory" text="{{runtime.dataDirectory}}" textcolor="{{color.textPrimary}}" bkcolor="{{color.surface}}" bordercolor="{{color.surface}}" padding="3,0,3,0" />
+            <Button name="browse-data" text="{{string.welcome.change}}" textcolor="{{color.textPrimary}}" hottextcolor="{{color.textPrimary}}" bkcolor="{{color.surfaceMuted}}" hotbkcolor="{{color.surfaceStrong}}" pushedbkcolor="{{color.surfaceStrong}}" width="58" height="25" borderround="6,6" />
           </HorizontalLayout>
         </VerticalLayout>
       </VerticalLayout>
