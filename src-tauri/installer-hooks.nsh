@@ -211,6 +211,7 @@ oh_ui_failed:
 FunctionEnd
 
 Function OrangeHubWelcomeShow
+  StrCpy $OrangeHubCreateShortcutState "1"
   Call OHLoadDataDirectory
   Call OHInitializeUI
 
@@ -304,11 +305,6 @@ Function OHInstallSuccess
   ${EndIf}
   nsis-duilib-ui::WaitForEvent
   Pop $OHPluginResult
-
-  ${If} $OrangeHubCreateShortcutState == "1"
-  ${AndIf} $NoShortcutMode != 1
-    Call CreateOrUpdateDesktopShortcut
-  ${EndIf}
 
   nsis-duilib-ui::ShutdownHidden
   Pop $0

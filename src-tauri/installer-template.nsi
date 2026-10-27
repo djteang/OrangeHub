@@ -443,10 +443,16 @@ Section Install
   Call CreateOrUpdateStartMenuShortcut
 
   ; Create desktop shortcut for silent and passive installers
-  ; because finish page will be skipped
+  ; because finish page will be skipped. Interactive installs honor the
+  ; selection captured on the welcome page here, after the executable exists.
   ${If} $PassiveMode = 1
   ${OrIf} ${Silent}
     Call CreateOrUpdateDesktopShortcut
+  ${Else}
+    ${If} $OrangeHubCreateShortcutState == "1"
+    ${AndIf} $NoShortcutMode != 1
+      Call CreateOrUpdateDesktopShortcut
+    ${EndIf}
   ${EndIf}
 
   !ifmacrodef NSIS_HOOK_POSTINSTALL
