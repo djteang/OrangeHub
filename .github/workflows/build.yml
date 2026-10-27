@@ -148,6 +148,7 @@ jobs:
             hdiutil attach "$dmg" \
               -nobrowse \
               -readonly \
+              -noverify \
               -mountpoint "$mount_point" >/dev/null
             app=""
             for candidate in "$mount_point"/*.app; do
