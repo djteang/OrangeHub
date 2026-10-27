@@ -20,7 +20,7 @@ jobs:
             artifact: OrangeHub-Windows-installers
           - platform: macos
             os: macos-latest
-            artifact: OrangeHub-macOS-universal
+            artifact: OrangeHub-macOS
           - platform: linux
             os: ubuntu-24.04
             artifact: OrangeHub-Linux-packages
@@ -49,18 +49,20 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Install Linux Tauri CLI binding
+        if: matrix.platform == 'linux'
+        run: npm install --no-save --package-lock=false --ignore-scripts @tauri-apps/cli-linux-x64-gnu@2.12.3
+
+      - name: Install macOS Tauri CLI binding
+        if: matrix.platform == 'macos'
+        run: npm install --no-save --package-lock=false --ignore-scripts @tauri-apps/cli-darwin-arm64@2.12.3
+
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install universal macOS Rust targets
+      - name: Install macOS Rust targets
         if: matrix.platform == 'macos'
         run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
-
-      - name: Generate macOS app icon
-        if: matrix.platform == 'macos'
-        run: |
-          npx tauri icon src-tauri/icons/icon.png --output "$RUNNER_TEMP/orangehub-icons"
-          cp "$RUNNER_TEMP/orangehub-icons/icon.icns" src-tauri/icons/icon.icns
 
       - name: Build application bundles
         shell: bash
@@ -70,7 +72,8 @@ jobs:
               npx tauri build --bundles nsis,msi
               ;;
             macos)
-              npx tauri build --target universal-apple-darwin --bundles dmg
+              npx tauri build --target aarch64-apple-darwin --bundles dmg
+              npx tauri build --target x86_64-apple-darwin --bundles dmg
               ;;
             linux)
               npx tauri build --bundles deb,rpm
@@ -98,7 +101,8 @@ jobs:
           name: ${{ matrix.artifact }}
           path: |
             src-tauri/target/release/bundle/**
-            src-tauri/target/universal-apple-darwin/release/bundle/**
+            src-tauri/target/aarch64-apple-darwin/release/bundle/**
+            src-tauri/target/x86_64-apple-darwin/release/bundle/**
             src-tauri/target/release/OrangeHub-Portable.zip
           if-no-files-found: error
           retention-days: 14
