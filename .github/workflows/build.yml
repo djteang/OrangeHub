@@ -1,4 +1,4 @@
-name: Build Windows installers
+name: Build OrangeHub
 
 on:
   push:
@@ -11,7 +11,20 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            os: windows-latest
+            artifact: OrangeHub-Windows-installers
+          - platform: macos
+            os: macos-latest
+            artifact: OrangeHub-macOS-universal
+          - platform: linux
+            os: ubuntu-24.04
+            artifact: OrangeHub-Linux-packages
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -24,19 +37,51 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            build-essential curl file libayatana-appindicator3-dev \
+            librsvg2-dev libssl-dev libwebkit2gtk-4.1-dev libxdo-dev \
+            patchelf rpm wget
+
       - name: Install frontend dependencies
         run: npm ci
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build Windows installers
-        run: npx tauri build
+      - name: Install universal macOS Rust targets
+        if: matrix.platform == 'macos'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - name: Generate macOS app icon
+        if: matrix.platform == 'macos'
+        run: |
+          npx tauri icon src-tauri/icons/icon.png --output "$RUNNER_TEMP/orangehub-icons"
+          cp "$RUNNER_TEMP/orangehub-icons/icon.icns" src-tauri/icons/icon.icns
+
+      - name: Build application bundles
+        shell: bash
+        run: |
+          case "${{ matrix.platform }}" in
+            windows)
+              npx tauri build --bundles nsis,msi
+              ;;
+            macos)
+              npx tauri build --target universal-apple-darwin --bundles dmg
+              ;;
+            linux)
+              npx tauri build --bundles deb,rpm
+              ;;
+          esac
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
-      - name: Prepare portable executable
+      - name: Prepare portable Windows executable
+        if: matrix.platform == 'windows'
         shell: pwsh
         run: |
           $source = Join-Path $env:GITHUB_WORKSPACE "src-tauri\target\release\orangehub.exe"
@@ -47,12 +92,13 @@ jobs:
           Copy-Item -Path $source -Destination (Join-Path $portableDir "OrangeHub.exe") -Force
           Compress-Archive -Path (Join-Path $portableDir "*") -DestinationPath $portableZip -Force
 
-      - name: Upload installer artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: OrangeHub-Windows-installers
+          name: ${{ matrix.artifact }}
           path: |
             src-tauri/target/release/bundle/**
+            src-tauri/target/universal-apple-darwin/release/bundle/**
             src-tauri/target/release/OrangeHub-Portable.zip
           if-no-files-found: error
           retention-days: 14
