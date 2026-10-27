@@ -141,15 +141,20 @@ jobs:
           set -euo pipefail
           verify_dmg() {
             local dmg="$1"
+            local attach_output
             local mount_point
             local app
 
-            mount_point="$(mktemp -d)"
-            hdiutil attach "$dmg" \
+            attach_output="$(hdiutil attach "$dmg" \
               -nobrowse \
               -readonly \
               -noverify \
-              -mountpoint "$mount_point" >/dev/null
+              -noautoopen)"
+            mount_point="$(printf '%s\n' "$attach_output" | awk '$NF ~ /^\/Volumes\// { print $NF; exit }')"
+            if [[ -z "$mount_point" ]]; then
+              echo "Unable to determine the mounted volume for DMG: $dmg"
+              exit 1
+            fi
             app=""
             for candidate in "$mount_point"/*.app; do
               if [[ -d "$candidate" ]]; then
@@ -159,13 +164,11 @@ jobs:
             done
             if [[ -z "$app" ]]; then
               hdiutil detach "$mount_point" -force >/dev/null || true
-              rm -rf "$mount_point"
               echo "No app bundle found in DMG: $dmg"
               exit 1
             fi
             codesign --verify --deep --strict --verbose=2 "$app"
             hdiutil detach "$mount_point" >/dev/null
-            rm -rf "$mount_point"
           }
 
           arm_dmg=""
