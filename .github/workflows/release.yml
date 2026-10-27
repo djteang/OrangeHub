@@ -137,14 +137,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          tauri_args=(--target aarch64-apple-darwin --bundles dmg)
           if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
             unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
               APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID APPLE_API_KEY APPLE_API_ISSUER APPLE_API_KEY_PATH
             export APPLE_SIGNING_IDENTITY=-
+            tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-"}}}')
           elif [[ -z "${APPLE_SIGNING_IDENTITY:-}" ]]; then
             unset APPLE_SIGNING_IDENTITY
           fi
-          npx tauri build --target aarch64-apple-darwin --bundles dmg
+          npx tauri build "${tauri_args[@]}"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -162,14 +164,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          tauri_args=(--target x86_64-apple-darwin --bundles dmg)
           if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
             unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
               APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID APPLE_API_KEY APPLE_API_ISSUER APPLE_API_KEY_PATH
             export APPLE_SIGNING_IDENTITY=-
+            tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-"}}}')
           elif [[ -z "${APPLE_SIGNING_IDENTITY:-}" ]]; then
             unset APPLE_SIGNING_IDENTITY
           fi
-          npx tauri build --target x86_64-apple-darwin --bundles dmg
+          npx tauri build "${tauri_args[@]}"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -185,14 +189,20 @@ jobs:
 
       - name: Verify macOS code signatures
         shell: bash
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
         run: |
           set -euo pipefail
-          for app in \
-            src-tauri/target/aarch64-apple-darwin/release/bundle/macos/OrangeHub.app \
-            src-tauri/target/x86_64-apple-darwin/release/bundle/macos/OrangeHub.app; do
-            if [[ ! -d "$app" ]]; then
-              echo "Expected macOS app bundle was not produced: $app"
+          for bundle_dir in \
+            src-tauri/target/aarch64-apple-darwin/release/bundle/macos \
+            src-tauri/target/x86_64-apple-darwin/release/bundle/macos; do
+            app="$(find "$bundle_dir" -maxdepth 1 -type d -name '*.app' -print -quit)"
+            if [[ -z "$app" ]]; then
+              echo "Expected macOS app bundle was not produced in: $bundle_dir"
               exit 1
+            fi
+            if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
+              codesign --force --deep --sign - "$app"
             fi
             codesign --verify --deep --strict --verbose=2 "$app"
           done
