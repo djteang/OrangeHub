@@ -102,6 +102,8 @@ jobs:
               ;;
             macos)
               if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
+                unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
+                  APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID APPLE_API_KEY APPLE_API_ISSUER APPLE_API_KEY_PATH
                 export APPLE_SIGNING_IDENTITY=-
               elif [[ -z "${APPLE_SIGNING_IDENTITY:-}" ]]; then
                 unset APPLE_SIGNING_IDENTITY
