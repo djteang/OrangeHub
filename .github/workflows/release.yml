@@ -137,16 +137,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tauri_args=(--target aarch64-apple-darwin --bundles dmg)
+          target=aarch64-apple-darwin
+          app="src-tauri/target/$target/release/bundle/macos/OrangeHub.app"
+          signing_config='{"bundle":{"macOS":{"signingIdentity":"-","hardenedRuntime":false}}}'
+          tauri_args=(--target "$target" --bundles app)
           if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
             unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
               APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID APPLE_API_KEY APPLE_API_ISSUER APPLE_API_KEY_PATH
             export APPLE_SIGNING_IDENTITY=-
-            tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-","hardenedRuntime":false}}}')
+            tauri_args+=(--config "$signing_config")
           elif [[ -z "${APPLE_SIGNING_IDENTITY:-}" ]]; then
             unset APPLE_SIGNING_IDENTITY
           fi
           npx tauri build "${tauri_args[@]}"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          tauri_args=(--target "$target" --bundles dmg)
+          if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
+            tauri_args+=(--config "$signing_config")
+          fi
+          npx tauri bundle "${tauri_args[@]}"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -164,16 +173,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tauri_args=(--target x86_64-apple-darwin --bundles dmg)
+          target=x86_64-apple-darwin
+          app="src-tauri/target/$target/release/bundle/macos/OrangeHub.app"
+          signing_config='{"bundle":{"macOS":{"signingIdentity":"-","hardenedRuntime":false}}}'
+          tauri_args=(--target "$target" --bundles app)
           if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
             unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
               APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID APPLE_API_KEY APPLE_API_ISSUER APPLE_API_KEY_PATH
             export APPLE_SIGNING_IDENTITY=-
-            tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-","hardenedRuntime":false}}}')
+            tauri_args+=(--config "$signing_config")
           elif [[ -z "${APPLE_SIGNING_IDENTITY:-}" ]]; then
             unset APPLE_SIGNING_IDENTITY
           fi
           npx tauri build "${tauri_args[@]}"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          tauri_args=(--target "$target" --bundles dmg)
+          if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
+            tauri_args+=(--config "$signing_config")
+          fi
+          npx tauri bundle "${tauri_args[@]}"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -191,58 +209,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          verify_dmg() {
-            local dmg="$1"
-            local attach_output
-            local mount_point
-            local app
-
-            attach_output="$(hdiutil attach "$dmg" \
-              -nobrowse \
-              -readonly \
-              -noverify \
-              -noautoopen)"
-            mount_point="$(printf '%s\n' "$attach_output" | awk '$NF ~ /^\/Volumes\// { print $NF; exit }')"
-            if [[ -z "$mount_point" ]]; then
-              echo "Unable to determine the mounted volume for DMG: $dmg"
+          for bundle_dir in \
+            src-tauri/target/aarch64-apple-darwin/release/bundle/dmg \
+            src-tauri/target/x86_64-apple-darwin/release/bundle/dmg; do
+            if ! compgen -G "$bundle_dir/*.dmg" >/dev/null; then
+              echo "Expected DMG was not produced in: $bundle_dir"
               exit 1
             fi
-            app=""
-            for candidate in "$mount_point"/*.app; do
-              if [[ -d "$candidate" ]]; then
-                app="$candidate"
-                break
-              fi
-            done
-            if [[ -z "$app" ]]; then
-              hdiutil detach "$mount_point" -force >/dev/null || true
-              echo "No app bundle found in DMG: $dmg"
-              exit 1
-            fi
-            codesign --verify --deep --strict --verbose=2 "$app"
-            hdiutil detach "$mount_point" >/dev/null
-          }
-
-          arm_dmg=""
-          for candidate in src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg; do
-            if [[ -f "$candidate" ]]; then
-              arm_dmg="$candidate"
-              break
-            fi
           done
-          x64_dmg=""
-          for candidate in src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg; do
-            if [[ -f "$candidate" ]]; then
-              x64_dmg="$candidate"
-              break
-            fi
-          done
-          if [[ -z "$arm_dmg" || -z "$x64_dmg" ]]; then
-            echo "Expected ARM64 and x64 DMGs were not produced."
-            exit 1
-          fi
-          verify_dmg "$arm_dmg"
-          verify_dmg "$x64_dmg"
+          echo "macOS app signatures were verified before DMG bundling."
 
       - name: Upload macOS package to GitHub Release
         env:
