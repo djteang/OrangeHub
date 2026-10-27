@@ -106,14 +106,14 @@ jobs:
                 unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
                   APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID APPLE_API_KEY APPLE_API_ISSUER APPLE_API_KEY_PATH
                 export APPLE_SIGNING_IDENTITY=-
-                tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-"}}}')
+                tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-","hardenedRuntime":false}}}')
               elif [[ -z "${APPLE_SIGNING_IDENTITY:-}" ]]; then
                 unset APPLE_SIGNING_IDENTITY
               fi
               npx tauri build "${tauri_args[@]}"
               tauri_args=(--target x86_64-apple-darwin --bundles dmg)
               if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
-                tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-"}}}')
+                tauri_args+=(--config '{"bundle":{"macOS":{"signingIdentity":"-","hardenedRuntime":false}}}')
               fi
               npx tauri build "${tauri_args[@]}"
               ;;
@@ -150,7 +150,7 @@ jobs:
               exit 1
             fi
             if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
-              codesign --force --deep --sign - "$app"
+              codesign --force --deep --timestamp=none --sign - "$app"
             fi
             codesign --verify --deep --strict --verbose=2 "$app"
           done
