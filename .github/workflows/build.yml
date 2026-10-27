@@ -137,23 +137,56 @@ jobs:
       - name: Verify macOS code signatures
         if: matrix.platform == 'macos'
         shell: bash
-        env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
         run: |
           set -euo pipefail
-          for bundle_dir in \
-            src-tauri/target/aarch64-apple-darwin/release/bundle/macos \
-            src-tauri/target/x86_64-apple-darwin/release/bundle/macos; do
-            app="$(find "$bundle_dir" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          verify_dmg() {
+            local dmg="$1"
+            local mount_point
+            local app
+
+            mount_point="$(mktemp -d)"
+            hdiutil attach "$dmg" \
+              -nobrowse \
+              -readonly \
+              -mountpoint "$mount_point" >/dev/null
+            app=""
+            for candidate in "$mount_point"/*.app; do
+              if [[ -d "$candidate" ]]; then
+                app="$candidate"
+                break
+              fi
+            done
             if [[ -z "$app" ]]; then
-              echo "Expected macOS app bundle was not produced in: $bundle_dir"
+              hdiutil detach "$mount_point" -force >/dev/null || true
+              rm -rf "$mount_point"
+              echo "No app bundle found in DMG: $dmg"
               exit 1
             fi
-            if [[ -z "${APPLE_CERTIFICATE:-}" ]]; then
-              codesign --force --deep --timestamp=none --sign - "$app"
-            fi
             codesign --verify --deep --strict --verbose=2 "$app"
+            hdiutil detach "$mount_point" >/dev/null
+            rm -rf "$mount_point"
+          }
+
+          arm_dmg=""
+          for candidate in src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg; do
+            if [[ -f "$candidate" ]]; then
+              arm_dmg="$candidate"
+              break
+            fi
           done
+          x64_dmg=""
+          for candidate in src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg; do
+            if [[ -f "$candidate" ]]; then
+              x64_dmg="$candidate"
+              break
+            fi
+          done
+          if [[ -z "$arm_dmg" || -z "$x64_dmg" ]]; then
+            echo "Expected ARM64 and x64 DMGs were not produced."
+            exit 1
+          fi
+          verify_dmg "$arm_dmg"
+          verify_dmg "$x64_dmg"
 
       - name: Prepare portable Windows executable
         if: matrix.platform == 'windows'
