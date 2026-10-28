@@ -15,11 +15,11 @@ OrangeHub is a Windows desktop workspace for remote servers, databases, and Dock
 - Optional AI assistance configured with your own compatible API endpoint and key.
 - Signed desktop updates delivered through GitHub Releases.
 
-The current release workflow packages Windows x64 installers and a portable executable. macOS and Linux packages are not published yet.
+The current release workflow packages Windows x64 installers, a portable executable, and Linux DEB/RPM packages. macOS packages are not published.
 
 ## Download
 
-Download the latest Windows installer or portable executable from [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest).
+Download the latest Windows installer, portable executable, or Linux package from [GitHub Releases](https://github.com/djteang/OrangeHub/releases/latest).
 
 ## Development
 
@@ -40,7 +40,7 @@ The application frontend can also be run independently with `npm run dev`. The R
 
 ## Releases and updates
 
-Pushing a `v*.*.*` tag that matches the versions in `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` starts the Windows release workflow. It builds the NSIS and MSI installers, publishes `OrangeHub-Portable.exe`, signs updater artifacts, and publishes `latest.json` to the GitHub Release. See [`UPDATES.md`](UPDATES.md) for signing setup and release steps.
+Pushing a `v*.*.*` tag that matches the versions in `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` starts the Windows and Linux release workflow. It builds the NSIS and MSI installers, publishes `OrangeHub-Portable.zip`, Linux DEB/RPM packages, signs updater artifacts, and publishes `latest.json` to the GitHub Release. See [`UPDATES.md`](UPDATES.md) for signing setup and release steps.
 
 ## License
 
