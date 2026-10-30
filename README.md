@@ -42,6 +42,8 @@ npm run tauri build
 
 推送到 `main` 会触发 Windows 和 Linux 构建，产物保存在 Actions 中。推送符合 `v*.*.*` 格式且与 `package.json`、`src-tauri/Cargo.toml` 和 `src-tauri/tauri.conf.json` 中版本一致的标签后，会触发正式发布工作流：构建 Windows NSIS 和 MSI 安装包、`OrangeHub-Portable.zip` 绿色版、Linux DEB/RPM 安装包、签名更新文件，并将 `latest.json` 发布到对应的 GitHub Release。Windows NSIS 安装器使用 OrangeHub 品牌界面，并可分别选择程序和本地数据目录。签名配置和发布步骤请参阅 [`UPDATES.md`](UPDATES.md)。
 
+## 最后感谢LINUXDO社区，提供了丰富的资源
+
 ## 许可证
 
 OrangeHub 采用 [知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议](LICENSE.txt)（CC BY-NC-SA 4.0）。
